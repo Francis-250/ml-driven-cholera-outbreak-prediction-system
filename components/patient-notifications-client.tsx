@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 
 type NotifType =
   | "HIGH_RISK_ALERT"
+  | "OUTBREAK_ALERT"
   | "DOCTOR_ALERT"
   | "DOCTOR_COMMENT"
   | "DOCTOR_ASSIGNED"
@@ -42,6 +43,11 @@ const typeConfig: Record<
   { icon: React.ElementType; iconClass: string; borderClass: string }
 > = {
   HIGH_RISK_ALERT: {
+    icon: AlertTriangle,
+    iconClass: "text-red-500",
+    borderClass: "border-red-200",
+  },
+  OUTBREAK_ALERT: {
     icon: AlertTriangle,
     iconClass: "text-red-500",
     borderClass: "border-red-200",

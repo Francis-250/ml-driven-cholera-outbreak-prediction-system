@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdminAction } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
 
-const allowedRoles = new Set(["patient", "doctor", "admin"]);
+const allowedRoles = new Set(["community", "community_user", "doctor", "admin", "patient"]);
 
 export async function setUserRole(userId: string, role: string) {
   const session = await requireAdminAction();

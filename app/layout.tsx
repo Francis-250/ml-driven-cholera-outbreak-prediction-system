@@ -5,10 +5,27 @@ import { Providers } from "@/hooks/providers";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Smart Stroke Assessment",
-  description: "AI-powered stroke detection system",
+  title: {
+    default: "ML-Driven Cholera Outbreak Prediction System",
+    template: "%s | Cholera Outbreak Prediction System",
+  },
+  description:
+    "AI-driven epidemiological surveillance, clinical dehydration triage, environmental risk monitoring, and real-time cholera outbreak prediction platform.",
+  keywords: [
+    "Cholera",
+    "Outbreak Prediction",
+    "Machine Learning",
+    "Epidemiological Surveillance",
+    "WHO Dehydration Triage",
+    "Environmental Risk Monitoring",
+  ],
   icons: {
-    icon: "/images/favi.jpeg",
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/images/favi.jpeg" },
+    ],
+    apple: "/images/favi.jpeg",
   },
 };
 

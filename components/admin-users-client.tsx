@@ -56,7 +56,12 @@ export function AdminUsersClient({ users }: { users: AdminUserItem[] }) {
             <div className="md:col-span-2">
               <Select value={user.role.toLowerCase()} disabled={pending} onValueChange={(role) => run(() => setUserRole(user.id, role))}>
                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="patient">Patient</SelectItem><SelectItem value="doctor">Doctor</SelectItem><SelectItem value="admin">Admin</SelectItem></SelectContent>
+                <SelectContent>
+                  <SelectItem value="community">Community User</SelectItem>
+                  <SelectItem value="doctor">Doctor</SelectItem>
+                  <SelectItem value="admin">Administrator</SelectItem>
+                  <SelectItem value="patient">Patient (Legacy)</SelectItem>
+                </SelectContent>
               </Select>
             </div>
             <div className="md:col-span-2 md:text-right">

@@ -16,7 +16,7 @@ import { accountFlow } from "@/lib/account-flow-client";
 export default function Register() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<"patient" | "doctor" | null>(
+  const [selectedRole, setSelectedRole] = useState<"community" | "doctor" | null>(
     null,
   );
 
@@ -79,7 +79,7 @@ export default function Register() {
           });
         }
         sessionStorage.setItem("verifyEmail", verificationEmail);
-        sessionStorage.setItem("registrationRole", selectedRole ?? "patient");
+        sessionStorage.setItem("registrationRole", selectedRole ?? "community");
         if (doctorIntent) {
           sessionStorage.setItem("doctorRegistrationIntent", doctorIntent);
         } else {
@@ -138,7 +138,7 @@ export default function Register() {
         <div className="w-full max-w-4xl">
           <div className="mb-12 text-center">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
-              StrokeCheck
+              ML-Driven Cholera Outbreak Prediction System
             </p>
             <h1 className="text-4xl font-semibold tracking-tight mb-4">
               Create an account
@@ -150,16 +150,16 @@ export default function Register() {
 
           <div className="grid gap-6 md:grid-cols-2">
             <button
-              onClick={() => setSelectedRole("patient")}
+              onClick={() => setSelectedRole("community")}
               className="flex flex-col items-center gap-4 rounded-lg border p-8 text-center transition-all hover:border-foreground hover:bg-accent"
             >
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <User className="h-8 w-8" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold">Patient</h3>
+                <h3 className="text-xl font-semibold">Community User</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Assess symptoms, track health
+                  Provide symptoms, view outbreak dashboards & predictions, monitor high-risk regions
                 </p>
               </div>
             </button>
@@ -172,9 +172,9 @@ export default function Register() {
                 <Stethoscope className="h-8 w-8" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold">Doctor</h3>
+                <h3 className="text-xl font-semibold">Doctor / Clinician</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Review assessments, consult
+                  Submit disease cases, upload environmental data, validate records, analyze trends
                 </p>
               </div>
             </button>
@@ -210,23 +210,23 @@ export default function Register() {
           {/* Left */}
           <div>
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
-              StrokeCheck
+              ML-Driven Cholera Outbreak Prediction System
             </p>
             <h1 className="text-4xl font-semibold tracking-tight leading-tight mb-4">
-              {selectedRole === "patient"
-                ? "Patient Registration"
+              {selectedRole === "community"
+                ? "Community User Registration"
                 : "Doctor Registration"}
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Fill in your details below to create your account and start using
-              our AI-powered stroke assessment platform.
+              Fill in your details below to create your account and participate in
+              early disease detection, outbreak risk forecasting, and community health protection.
             </p>
           </div>
 
           {/* Right */}
           <div className="w-full rounded-lg border p-8">
             <h2 className="text-xl font-semibold tracking-tight mb-6">
-              {selectedRole === "patient" ? "Patient" : "Doctor"} Information
+              {selectedRole === "community" ? "Community User" : "Doctor"} Information
             </h2>
 
             <form onSubmit={handleRegister} className="space-y-4">
@@ -317,7 +317,7 @@ export default function Register() {
                 {loading ? (
                   <span className="h-3.5 w-3.5 rounded-full border-2 border-background/40 border-t-background animate-spin" />
                 ) : (
-                  `Create ${selectedRole === "patient" ? "Patient" : "Doctor"} Account`
+                  `Create ${selectedRole === "community" ? "Community User" : "Doctor"} Account`
                 )}
               </Button>
             </form>

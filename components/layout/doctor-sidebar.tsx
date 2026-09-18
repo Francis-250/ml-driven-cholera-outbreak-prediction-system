@@ -2,7 +2,19 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ClipboardList, Home, LogOut, Menu, User } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCheck,
+  CloudRain,
+  FileDown,
+  Home,
+  LogOut,
+  Menu,
+  PlusCircle,
+  Stethoscope,
+  TrendingUp,
+  User,
+} from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -16,7 +28,13 @@ import {
 
 const links = [
   { label: "Dashboard", href: "/doctor", icon: Home },
-  { label: "Reviews", href: "/doctor/reviews", icon: ClipboardList },
+  { label: "Submit Disease Case", href: "/doctor/cases/new", icon: PlusCircle },
+  { label: "Disease Cases", href: "/doctor/cases", icon: Stethoscope },
+  { label: "Environmental Data", href: "/doctor/environmental", icon: CloudRain },
+  { label: "Validate Records", href: "/doctor/validate", icon: CheckCheck },
+  { label: "Analyze Trends", href: "/doctor/trends", icon: TrendingUp },
+  { label: "Generate Reports", href: "/doctor/reports", icon: FileDown },
+  { label: "Predictions & Alerts", href: "/doctor/predictions", icon: AlertTriangle },
   { label: "Profile", href: "/doctor/profile", icon: User },
 ];
 
@@ -41,13 +59,13 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col bg-background">
       <div className="h-20 border-b px-4 flex flex-col justify-center">
-        <Link href="/doctor" className="text-sm font-semibold tracking-tight">
-          StrokeCheck
+        <Link href="/doctor" className="text-sm font-semibold tracking-tight text-primary">
+          CholeraPredict
         </Link>
-        <p className="text-xs text-muted-foreground mt-0.5">Doctor Portal</p>
+        <p className="text-xs text-muted-foreground mt-0.5">Clinician Surveillance Portal</p>
       </div>
 
-      <nav className="flex-1 p-3 space-y-1">
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {links.map(({ label, href, icon: Icon }) => {
           const active =
             href === "/doctor" ? path === href : path.startsWith(href);
@@ -79,7 +97,7 @@ function SidebarContent({
       <div className="border-t p-3">
         <div className="px-2 mb-3 min-w-0">
           <p className="text-sm font-medium truncate">{name}</p>
-          <p className="text-xs text-muted-foreground truncate">{specialty}</p>
+          <p className="text-xs text-muted-foreground truncate">{specialty || "Epidemiologist / Doctor"}</p>
         </div>
         <Button
           variant="ghost"
@@ -120,7 +138,7 @@ export function DoctorSidebar({
           </SheetContent>
         </Sheet>
         <div className="ml-2">
-          <p className="text-sm font-semibold tracking-tight">StrokeCheck</p>
+          <p className="text-sm font-semibold tracking-tight text-primary">CholeraPredict</p>
           <p className="text-[10px] text-muted-foreground">Doctor Portal</p>
         </div>
       </header>

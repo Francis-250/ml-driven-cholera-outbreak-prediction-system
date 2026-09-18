@@ -81,13 +81,13 @@ export default function LoginForm() {
         {/* Left */}
         <div>
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
-            StrokeCheck
+            ML-Driven Cholera Outbreak Prediction System
           </p>
           <h1 className="text-4xl font-semibold tracking-tight leading-tight mb-4">
-            Early detection <br /> saves lives
+            Predict Outbreaks. <br /> Protect Communities.
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
-            Sign in to access your AI-powered stroke symptom assessment dashboard and track your health history.
+            Sign in to access your outbreak prediction dashboard, report symptoms, manage disease records, and monitor high-risk zones.
           </p>
           <p className="mt-10 text-sm text-muted-foreground">
             No account?{" "}

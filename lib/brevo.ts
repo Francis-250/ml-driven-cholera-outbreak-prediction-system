@@ -79,11 +79,13 @@ export const sendDoctorAlertEmail = async ({
   assessmentId,
   riskLevel,
   confidenceScore,
+  district,
 }: {
   patientName: string;
   assessmentId: string;
   riskLevel: string;
   confidenceScore: number;
+  district?: string;
 }) => {
   const doctorAlertEmail = process.env.DOCTOR_ALERT_EMAIL;
 
@@ -94,14 +96,18 @@ export const sendDoctorAlertEmail = async ({
 
   return sendEmail({
     to: doctorAlertEmail,
-    subject: `High-risk stroke assessment: ${patientName}`,
+    subject: `[CHOLERA OUTBREAK ALERT] High-risk case reported: ${patientName}`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>High-risk stroke assessment</h2>
-        <p><strong>${patientName}</strong> submitted an assessment that requires doctor review.</p>
-        <p>Risk level: <strong>${riskLevel}</strong></p>
-        <p>Confidence: <strong>${Math.round(confidenceScore * 100)}%</strong></p>
-        <p>Assessment ID: <strong>${assessmentId}</strong></p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #fee2e2; border-radius: 8px; padding: 20px;">
+        <h2 style="color: #b91c1c;">⚠️ High-Risk Cholera Case Alert</h2>
+        <p>A high-risk cholera / severe dehydration report has been registered and requires immediate clinician validation.</p>
+        <p><strong>Patient / Reporter:</strong> ${patientName}</p>
+        ${district ? `<p><strong>District / Hotspot:</strong> ${district}</p>` : ""}
+        <p><strong>Risk Level:</strong> <span style="color: #dc2626; font-weight: bold;">${riskLevel}</span></p>
+        <p><strong>Prediction Confidence:</strong> ${Math.round(confidenceScore * 100)}%</p>
+        <p><strong>Case ID:</strong> ${assessmentId}</p>
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;" />
+        <p style="font-size: 12px; color: #6b7280;">ML-Driven Cholera Outbreak Prediction System - Rapid Surveillance Unit</p>
       </div>
     `,
   });
@@ -122,17 +128,25 @@ export const sendAssessmentResultEmail = async ({
 }) => {
   return sendEmail({
     to,
-    subject: `Your stroke assessment result: ${riskLevel}`,
+    subject: `Your Cholera Symptom Assessment Result: ${riskLevel} Risk`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Assessment complete</h2>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+        <h2>Cholera Assessment & Rehydration Guidance</h2>
         <p>Hello ${patientName},</p>
-        <p>Your stroke symptom assessment has been processed.</p>
-        <p>Risk level: <strong>${riskLevel}</strong></p>
-        <p>Confidence: <strong>${Math.round(confidenceScore * 100)}%</strong></p>
-        <p>${recommendation}</p>
-        <p>This is not a medical diagnosis. Always consult a qualified healthcare professional.</p>
+        <p>Your cholera symptom assessment has been processed by our AI prediction system.</p>
+        <p><strong>Calculated Risk Level:</strong> <strong>${riskLevel}</strong></p>
+        <p><strong>Confidence:</strong> <strong>${Math.round(confidenceScore * 100)}%</strong></p>
+        <div style="background-color: #f8fafc; padding: 15px; border-left: 4px solid #3b82f6; margin: 15px 0;">
+          <p style="margin: 0; font-weight: 500;">Actionable Recommendation:</p>
+          <p style="margin: 5px 0 0 0;">${recommendation}</p>
+        </div>
+        <p style="font-size: 13px; color: #475569;">
+          <strong>Important Life-Saving Note:</strong> If you or the patient experience severe watery diarrhea, drink Oral Rehydration Salts (ORS) solution immediately after every loose stool. Visit the nearest health center without delay.
+        </p>
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;" />
+        <p style="color: #94a3b8; font-size: 11px;">ML-Driven Cholera Outbreak Prediction System</p>
       </div>
     `,
   });
 };
+

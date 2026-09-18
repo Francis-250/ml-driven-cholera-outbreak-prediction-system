@@ -7,7 +7,7 @@ import {
   Brain,
   ClipboardList,
   FileClock,
-  MessageSquare,
+  FileDown,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -28,13 +28,13 @@ import {
 
 const links = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Users", href: "/admin/users", icon: Users },
-  { label: "Doctors", href: "/admin/doctors", icon: Stethoscope },
-  { label: "Assessments", href: "/admin/assessments", icon: ClipboardList },
-  { label: "Doctor feedback", href: "/admin/feedback", icon: MessageSquare },
-  { label: "Audit logs", href: "/admin/audit", icon: FileClock },
-  { label: "AI operations", href: "/admin/ai", icon: Brain },
-  { label: "Profile", href: "/admin/settings", icon: Settings },
+  { label: "Manage Users", href: "/admin/users", icon: Users },
+  { label: "Disease Records", href: "/admin/records", icon: ClipboardList },
+  { label: "Export Reports", href: "/admin/reports", icon: FileDown },
+  { label: "Audit Logs", href: "/admin/audit", icon: FileClock },
+  { label: "Doctor Approvals", href: "/admin/doctors", icon: Stethoscope },
+  { label: "AI Operations", href: "/admin/ai", icon: Brain },
+  { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 function Content({ name, mobile = false }: { name: string; mobile?: boolean }) {
@@ -49,8 +49,8 @@ function Content({ name, mobile = false }: { name: string; mobile?: boolean }) {
   return (
     <div className="flex h-full flex-col bg-background">
       <div className="h-20 border-b px-4 flex flex-col justify-center">
-        <Link href="/admin" className="text-sm font-semibold tracking-tight">
-          StrokeCheck
+        <Link href="/admin" className="text-sm font-semibold tracking-tight text-primary">
+          CholeraPredict
         </Link>
         <p className="mt-0.5 text-xs text-muted-foreground">Admin Console</p>
       </div>
@@ -71,7 +71,13 @@ function Content({ name, mobile = false }: { name: string; mobile?: boolean }) {
               {label}
             </Link>
           );
-          return mobile ? <SheetClose asChild key={href}>{link}</SheetClose> : <div key={href}>{link}</div>;
+          return mobile ? (
+            <SheetClose asChild key={href}>
+              {link}
+            </SheetClose>
+          ) : (
+            <div key={href}>{link}</div>
+          );
         })}
       </nav>
       <div className="border-t p-3">
@@ -81,10 +87,15 @@ function Content({ name, mobile = false }: { name: string; mobile?: boolean }) {
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">{name}</p>
-            <p className="text-xs text-muted-foreground">Administrator</p>
+            <p className="text-xs text-muted-foreground">System Administrator</p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground" onClick={signOut}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start text-muted-foreground"
+          onClick={signOut}
+        >
           <LogOut size={14} className="mr-2" /> Sign Out
         </Button>
       </div>
@@ -100,14 +111,19 @@ export function AdminSidebar({ name }: { name: string }) {
       </aside>
       <header className="lg:hidden sticky top-0 z-40 h-14 border-b bg-background flex items-center px-4">
         <Sheet>
-          <SheetTrigger asChild><Button variant="ghost" size="icon"><Menu size={18} /><span className="sr-only">Open navigation</span></Button></SheetTrigger>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Menu size={18} />
+              <span className="sr-only">Open navigation</span>
+            </Button>
+          </SheetTrigger>
           <SheetContent side="left" className="w-56 p-0 gap-0" showCloseButton={false}>
             <SheetTitle className="sr-only">Admin navigation</SheetTitle>
             <Content name={name} mobile />
           </SheetContent>
         </Sheet>
         <div className="ml-2">
-          <p className="text-sm font-semibold tracking-tight">StrokeCheck</p>
+          <p className="text-sm font-semibold tracking-tight text-primary">CholeraPredict</p>
           <p className="text-[10px] text-muted-foreground">Admin Console</p>
         </div>
       </header>

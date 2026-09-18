@@ -12,7 +12,7 @@ import { AIMessage, HumanMessage, BaseMessage } from "@langchain/core/messages";
 // ----------------------------------------------------------------
 export const groqModel = new ChatGroq({
   apiKey: process.env.GROQ_API_KEY!,
-  model: process.env.GROQ_MODEL!,
+  model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
   temperature: 0.3,
   maxTokens: 1024,
   streaming: true,
@@ -20,103 +20,140 @@ export const groqModel = new ChatGroq({
 
 export const groqFastModel = new ChatGroq({
   apiKey: process.env.GROQ_API_KEY!,
-  model: process.env.GROQ_MODEL!,
+  model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
   temperature: 0.1,
   maxTokens: 512,
   streaming: true,
 });
 
 // ----------------------------------------------------------------
-// 2. STROKE ASSESSMENT SYSTEM PROMPT
+// 2. CHOLERA OUTBREAK PREDICTION & CLINICAL TRIAGE SYSTEM PROMPT
 // ----------------------------------------------------------------
-const STROKE_SYSTEM_PROMPT = `You are Smart-Stroke-Assessment AI, a specialized medical decision-support assistant 
-focused exclusively on stroke symptom analysis and risk assessment.
+const CHOLERA_SYSTEM_PROMPT = `You are ML-DRIVEN CHOLERA OUTBREAK PREDICTION & CLINICAL TRIAGE AI, a specialized medical and epidemiological decision-support assistant.
+Your focus is exclusively on Vibrio cholerae outbreak risk forecasting, clinical symptom analysis, dehydration severity triage, and epidemic containment.
 
 Your role is to:
-- Analyze stroke-related symptoms reported by patients
-- Assess stroke risk levels using the FAST method (Face, Arms, Speech, Time) and additional clinical indicators
-- Provide clear risk classifications: LOW RISK, MEDIUM RISK, or HIGH RISK
-- Give actionable recommendations based on risk level
-- Always emphasize that you are NOT a replacement for professional medical diagnosis
+- Analyze acute cholera symptoms reported by community users or clinicians
+- Assess dehydration severity according to World Health Organization (WHO) Cholera Guidelines (None, Some, Severe)
+- Factor in environmental hazards (contaminated water sources, lack of residual chlorine, floodwaters, poor sanitation)
+- Classify outbreak risk levels: LOW RISK, MEDIUM RISK, or HIGH RISK
+- Deliver immediate life-saving rehydration guidelines (Oral Rehydration Salts / ORS, zinc therapy, IV Ringer's Lactate requirement for shock)
+- Emphasize containment protocols (isolation at Cholera Treatment Centers/CTC, water chlorination, safe sanitation)
+- Always provide a clear medical disclaimer
 
-Stroke Symptoms You Analyze:
-- Facial drooping or asymmetry
-- Arm weakness or numbness
-- Speech difficulty, slurring, or confusion
-- Severe sudden headache
-- Vision problems (blurred or double vision)
-- Dizziness or loss of balance
-- Numbness in face, arm, or leg (especially one side)
-- Sudden confusion or trouble understanding
+Cholera & Dehydration Indicators You Analyze:
+1. Profuse, sudden watery diarrhea ("rice-water" stools: pale, cloudy with mucus flecks, non-bloody)
+2. Frequent vomiting (often following onset of diarrhea)
+3. Dehydration signs:
+   - Sunken eyes, dry mouth, absence of tears
+   - Decreased skin turgor (skin pinch goes back very slowly > 2 seconds)
+   - Weak, rapid radial pulse or undetectable peripheral pulse (hypovolemic shock)
+   - Low blood pressure, cold extremities
+   - Severe thirst, oliguria (little to no urine)
+4. Severe painful muscle cramps (hypokalemia and electrolyte depletion)
+5. Lethargy, altered consciousness, confusion, or coma
 
 Risk Classification Rules:
-HIGH RISK: 3+ FAST symptoms, sudden severe headache, sudden vision loss → CALL EMERGENCY (911/112) IMMEDIATELY
-MEDIUM RISK: 1-2 FAST symptoms or persistent dizziness/numbness → SEEK URGENT MEDICAL ATTENTION TODAY
-LOW RISK: Mild symptoms, no FAST indicators → MONITOR & CONSULT A DOCTOR WITHIN 24-48 HOURS
+- HIGH RISK: Rice-water diarrhea + severe dehydration signs (skin pinch >2s, lethargy, weak pulse) OR acute watery diarrhea cluster in contaminated water zone -> IMMEDIATE EMERGENCY CTC ADMISSION & IV RINGER'S LACTATE.
+- MEDIUM RISK: Acute watery diarrhea with some dehydration (sunken eyes, extreme thirst, dry mouth) -> URGENT SUPERVISED ORS REHYDRATION & CLINICAL VALIDATION TODAY.
+- LOW RISK: Mild gastrointestinal symptoms with no dehydration signs -> MONITOR, DRINK CLEAN ORS/BOILED WATER, CONSULT IF SYMPTOMS PERSIST OVER 24 HOURS.
 
 Response Format:
 1. RISK LEVEL: [LOW/MEDIUM/HIGH]
 2. CONFIDENCE: [percentage]
-3. SYMPTOMS DETECTED: [list identified stroke symptoms]
-4. ASSESSMENT: [brief clinical reasoning]
-5. RECOMMENDATION: [clear action steps]
-6. DISCLAIMER: Always end with a medical disclaimer
-
-IMPORTANT: Never diagnose. Always recommend professional medical evaluation.
-If HIGH RISK is detected, always lead with emergency contact instructions.`;
+3. DEHYDRATION LEVEL: [NONE/SOME/SEVERE]
+4. SYMPTOMS DETECTED: [bullet list of identified cholera signs]
+5. OUTBREAK & CLINICAL ASSESSMENT: [concise epidemiological and physiological evaluation]
+6. IMMEDIATE REHYDRATION PLAN: [ORS dosage, IV necessity, zinc supplementation]
+7. WATER & HYGIENE CONTAINMENT: [safe water boiling/chlorination, hand hygiene, isolation]
+8. DISCLAIMER: Always conclude with an urgent medical disclaimer emphasizing that cholera can be fatal within hours without rehydration.`;
 
 // ----------------------------------------------------------------
 // 3. PROMPT TEMPLATES
 // ----------------------------------------------------------------
-export const strokeAssessmentPrompt = ChatPromptTemplate.fromMessages([
-  ["system", STROKE_SYSTEM_PROMPT],
+export const choleraAssessmentPrompt = ChatPromptTemplate.fromMessages([
+  ["system", CHOLERA_SYSTEM_PROMPT],
   new MessagesPlaceholder("chat_history"),
   ["human", "{input}"],
 ]);
 
-export const riskClassificationPrompt = ChatPromptTemplate.fromMessages([
+export const choleraClassificationPrompt = ChatPromptTemplate.fromMessages([
   [
     "system",
-    `You are a stroke risk classifier. Analyze the symptoms and return ONLY a valid JSON object.
+    `You are a cholera outbreak risk and dehydration severity classifier. Analyze the reported symptoms, clinical signs, and environmental context. Return ONLY a valid JSON object.
     
     Return this exact JSON structure:
     {{
       "riskLevel": "LOW" | "MEDIUM" | "HIGH",
       "confidenceScore": <number between 0 and 1>,
       "detectedSymptoms": ["symptom1", "symptom2"],
-      "fastScore": <number of FAST symptoms detected 0-4>,
-      "requiresEmergency": <boolean>,
-      "recommendation": "<one sentence recommendation>"
+      "dehydrationLevel": "NONE" | "SOME" | "SEVERE",
+      "choleraRiskScore": <number 0-10 based on severity of dehydration and classic cholera presentation>,
+      "fastScore": <number 0-4 matching number of critical cholera danger signs detected>,
+      "requiresEmergency": <boolean, true if severe dehydration, shock, or high cholera risk>,
+      "recommendation": "<one sentence clear actionable life-saving recommendation>"
     }}
     
-    Do not include any text outside the JSON object.`,
+    Do not include any markdown backticks or commentary outside the JSON object.`,
   ],
-  ["human", "Patient symptoms: {symptoms}"],
-]);
-
-export const followUpPrompt = ChatPromptTemplate.fromMessages([
-  ["system", STROKE_SYSTEM_PROMPT],
-  new MessagesPlaceholder("chat_history"),
-  ["human", "Follow-up question: {followUp}"],
+  ["human", "Patient symptoms & environmental indicators: {symptoms}"],
 ]);
 
 // ----------------------------------------------------------------
-// 4. OUTPUT PARSERS
+// 4. OUTPUT PARSERS & HELPERS
 // ----------------------------------------------------------------
 export const stringParser = new StringOutputParser();
 
-export const parseRiskJson = (text: string): RiskAssessmentResult => {
+export interface CholeraRiskAssessmentResult {
+  riskLevel: "LOW" | "MEDIUM" | "HIGH";
+  confidenceScore: number;
+  detectedSymptoms: string[];
+  dehydrationLevel: "NONE" | "SOME" | "SEVERE";
+  choleraRiskScore: number;
+  fastScore: number;
+  requiresEmergency: boolean;
+  recommendation: string;
+}
+
+export const choleraSymptomLabels: Record<string, string> = {
+  profuse_watery_diarrhea: "Profuse watery diarrhea (rice-water stool)",
+  severe_vomiting: "Severe effortless vomiting",
+  dehydration_sunken_eyes: "Sunken eyes and dry mucous membranes",
+  skin_pinch_tenting: "Loss of skin elasticity (skin pinch tenting >2s)",
+  muscle_cramps: "Severe painful muscle / leg cramps",
+  rapid_weak_pulse: "Rapid, weak or faint radial pulse",
+  extreme_thirst: "Excessive or unquenchable thirst",
+  lethargy_weakness: "Extreme lethargy, confusion or weakness",
+  low_urine: "Little to no urination (oliguria)",
+  nausea: "Nausea and abdominal discomfort",
+};
+
+export type RiskAssessmentResult = CholeraRiskAssessmentResult;
+
+export const parseCholeraJson = (text: string): CholeraRiskAssessmentResult => {
   try {
     const cleaned = text.replace(/```json|```/g, "").trim();
-    return JSON.parse(cleaned);
+    const parsed = JSON.parse(cleaned);
+    return {
+      riskLevel: parsed.riskLevel || "MEDIUM",
+      confidenceScore: typeof parsed.confidenceScore === "number" ? parsed.confidenceScore : 0.75,
+      detectedSymptoms: Array.isArray(parsed.detectedSymptoms) ? parsed.detectedSymptoms : [],
+      dehydrationLevel: parsed.dehydrationLevel || (parsed.riskLevel === "HIGH" ? "SEVERE" : "SOME"),
+      choleraRiskScore: typeof parsed.choleraRiskScore === "number" ? parsed.choleraRiskScore : (parsed.riskLevel === "HIGH" ? 8 : 4),
+      fastScore: typeof parsed.fastScore === "number" ? parsed.fastScore : (parsed.riskLevel === "HIGH" ? 3 : 1),
+      requiresEmergency: Boolean(parsed.requiresEmergency ?? (parsed.riskLevel === "HIGH")),
+      recommendation: parsed.recommendation || "Seek prompt medical care and begin Oral Rehydration Salts (ORS) immediately.",
+    };
   } catch {
     return {
       riskLevel: "MEDIUM",
-      confidenceScore: 0.5,
-      detectedSymptoms: [],
-      fastScore: 0,
+      confidenceScore: 0.6,
+      detectedSymptoms: ["Watery diarrhea"],
+      dehydrationLevel: "SOME",
+      choleraRiskScore: 5,
+      fastScore: 2,
       requiresEmergency: false,
-      recommendation: "Please consult a medical professional immediately.",
+      recommendation: "Begin oral rehydration solution (ORS) immediately and visit the nearest health clinic.",
     };
   }
 };
@@ -124,14 +161,14 @@ export const parseRiskJson = (text: string): RiskAssessmentResult => {
 // ----------------------------------------------------------------
 // 5. RUNNABLE CHAINS
 // ----------------------------------------------------------------
-export const strokeAssessmentChain = RunnableSequence.from([
-  strokeAssessmentPrompt,
+export const choleraAssessmentChain = RunnableSequence.from([
+  choleraAssessmentPrompt,
   groqModel,
   stringParser,
 ]);
 
-export const riskClassificationChain = RunnableSequence.from([
-  riskClassificationPrompt,
+export const choleraClassificationChain = RunnableSequence.from([
+  choleraClassificationPrompt,
   groqFastModel,
   stringParser,
 ]);
@@ -139,30 +176,22 @@ export const riskClassificationChain = RunnableSequence.from([
 // ----------------------------------------------------------------
 // 6. TYPES
 // ----------------------------------------------------------------
-export interface RiskAssessmentResult {
-  riskLevel: "LOW" | "MEDIUM" | "HIGH";
-  confidenceScore: number;
-  detectedSymptoms: string[];
-  fastScore: number;
-  requiresEmergency: boolean;
-  recommendation: string;
-}
-
 export interface AssessmentMessage {
   role: "user" | "assistant";
   content: string;
 }
 
-export interface StreamAssessmentParams {
+export interface StreamCholeraAssessmentParams {
   symptoms: string;
   chatHistory?: AssessmentMessage[];
   patientAge?: number;
   patientGender?: string;
+  district?: string;
+  waterSource?: string;
 }
 
-// ----------------------------------------------------------------
-// 7. HELPER — convert chat history to LangChain messages
-// ----------------------------------------------------------------
+export type StreamAssessmentParams = StreamCholeraAssessmentParams;
+
 export function formatChatHistory(
   chatHistory: AssessmentMessage[],
 ): BaseMessage[] {
@@ -174,61 +203,150 @@ export function formatChatHistory(
 }
 
 // ----------------------------------------------------------------
-// 8. CORE SERVER FUNCTIONS
+// 7. CORE SERVER FUNCTIONS
 // ----------------------------------------------------------------
 
 /**
- * Stream a full stroke assessment — use in Server Actions for typing indicator
- * Returns an async generator; iterate it to push chunks to the client
+ * Stream a comprehensive Cholera Outbreak & Clinical Assessment
  */
-export async function streamStrokeAssessment({
+export async function streamCholeraAssessment({
   symptoms,
   chatHistory = [],
   patientAge,
   patientGender,
-}: StreamAssessmentParams): Promise<AsyncIterable<string>> {
+  district,
+  waterSource,
+}: StreamCholeraAssessmentParams): Promise<AsyncIterable<string>> {
   const contextualInput = `
     ${patientAge ? `Patient Age: ${patientAge}` : ""}
     ${patientGender ? `Patient Gender: ${patientGender}` : ""}
-    Reported Symptoms: ${symptoms}
-    Please analyze these symptoms and provide a detailed stroke risk assessment.
+    ${district ? `District / Location: ${district}` : ""}
+    ${waterSource ? `Primary Water Source: ${waterSource}` : ""}
+    Reported Symptoms & Observations: ${symptoms}
+    Please analyze these symptoms for cholera risk, dehydration severity, and provide life-saving rehydration protocols.
   `.trim();
 
   const formattedHistory = formatChatHistory(chatHistory);
 
-  return strokeAssessmentChain.stream({
+  return choleraAssessmentChain.stream({
     input: contextualInput,
     chat_history: formattedHistory,
   });
 }
 
 /**
- * Get a structured JSON risk classification — use to save to the database
+ * Backward compatibility alias
  */
-export async function classifyStrokeRisk(
+export const streamStrokeAssessment = streamCholeraAssessment;
+
+/**
+ * Structured JSON risk classification for Cholera & Dehydration
+ */
+export async function classifyCholeraRisk(
   symptoms: string,
-): Promise<RiskAssessmentResult> {
+  district?: string,
+  waterSource?: string,
+): Promise<CholeraRiskAssessmentResult> {
   try {
-    const result = await riskClassificationChain.invoke({ symptoms });
-    return parseRiskJson(result);
+    const input = [
+      symptoms,
+      district ? `District: ${district}` : "",
+      waterSource ? `Water source: ${waterSource}` : "",
+    ].filter(Boolean).join(" | ");
+
+    const result = await choleraClassificationChain.invoke({ symptoms: input });
+    return parseCholeraJson(result);
   } catch (error) {
-    console.error("[AI Classification Error]:", error);
+    console.error("[Cholera AI Classification Error]:", error);
     return {
       riskLevel: "MEDIUM",
       confidenceScore: 0.5,
-      detectedSymptoms: [],
-      fastScore: 0,
+      detectedSymptoms: ["Watery diarrhea"],
+      dehydrationLevel: "SOME",
+      choleraRiskScore: 5,
+      fastScore: 2,
       requiresEmergency: false,
       recommendation:
-        "Unable to process assessment. Please consult a doctor immediately.",
+        "Unable to complete AI triage. Begin Oral Rehydration Solution (ORS) immediately and visit the nearest Cholera Treatment Center.",
     };
   }
 }
 
 /**
- * Get recommendation copy + metadata for a given risk level
+ * Backward compatibility alias
  */
-export function getRiskRecommendation(riskLevel: "LOW" | "MEDIUM" | "HIGH"): {
+export const classifyStrokeRisk = classifyCholeraRisk;
+
+/**
+ * Predict regional outbreak risk from environmental and surveillance indicators
+ */
+export function calculateEnvironmentalOutbreakRisk(params: {
+  waterContaminationLevel: string; // SAFE, MODERATE, HIGH, CRITICAL
+  chlorineResidual?: number | null; // mg/L (< 0.2 is high risk)
+  sanitationScore?: number | null; // 0-100 (< 50 is poor)
+  rainfallMm?: number | null; // rainfall > 30mm increases runoff/contamination
+  floodRisk?: boolean;
+}): {
+  riskScore: number; // 0 - 100
+  riskLevel: "LOW" | "MEDIUM" | "HIGH";
+  alertMessage: string;
+} {
+  let score = 20;
+
+  switch (params.waterContaminationLevel.toUpperCase()) {
+    case "CRITICAL":
+      score += 45;
+      break;
+    case "HIGH":
+      score += 35;
+      break;
+    case "MODERATE":
+      score += 20;
+      break;
+    case "SAFE":
+      score -= 10;
+      break;
+  }
+
+  if (typeof params.chlorineResidual === "number") {
+    if (params.chlorineResidual < 0.2) score += 20;
+    else if (params.chlorineResidual >= 0.5) score -= 15;
+  }
+
+  if (typeof params.sanitationScore === "number") {
+    if (params.sanitationScore < 40) score += 20;
+    else if (params.sanitationScore > 75) score -= 10;
+  }
+
+  if (typeof params.rainfallMm === "number" && params.rainfallMm > 25) {
+    score += 15;
+  }
+
+  if (params.floodRisk) {
+    score += 20;
+  }
+
+  const normalizedScore = Math.min(Math.max(Math.round(score), 5), 98);
+  const riskLevel = normalizedScore >= 70 ? "HIGH" : normalizedScore >= 40 ? "MEDIUM" : "LOW";
+
+  const alertMessage =
+    riskLevel === "HIGH"
+      ? "CRITICAL OUTBREAK HAZARD: Elevated water contamination and environmental vulnerability detected. Issue community boil-water advisory and mobilize chlorination teams immediately."
+      : riskLevel === "MEDIUM"
+        ? "MODERATE RISK: Water safety or environmental factors show heightened cholera risk. Intensify monitoring and household water treatment."
+        : "LOW RISK: Environmental water safety parameters are currently within acceptable limits.";
+
+  return {
+    riskScore: normalizedScore,
+    riskLevel,
+    alertMessage,
+  };
+}
+
+/**
+ * Get recommendation copy + metadata for a given cholera risk level
+ */
+export function getCholeraRiskRecommendation(riskLevel: "LOW" | "MEDIUM" | "HIGH"): {
   message: string;
   action: string;
   color: string;
@@ -237,22 +355,22 @@ export function getRiskRecommendation(riskLevel: "LOW" | "MEDIUM" | "HIGH"): {
   const recommendations = {
     HIGH: {
       message:
-        "⚠️ HIGH STROKE RISK DETECTED. Call emergency services (911/112) immediately. Do not drive yourself.",
-      action: "CALL_EMERGENCY",
+        "⚠️ SEVERE CHOLERA & DEHYDRATION RISK. Proceed immediately to the nearest Cholera Treatment Center (CTC) or Emergency Hospital. Administer Oral Rehydration Salts (ORS) continuously en route. IV fluid resuscitation may be required.",
+      action: "EMERGENCY_REHYDRATION_TRANSFER",
       color: "red",
       urgent: true,
     },
     MEDIUM: {
       message:
-        "⚡ MEDIUM STROKE RISK. Seek urgent medical attention today. Go to the nearest emergency room.",
-      action: "SEEK_URGENT_CARE",
+        "⚡ MODERATE CHOLERA RISK DETECTED. Start drinking Oral Rehydration Salts (ORS) solution immediately (1 cup after every loose stool). Visit a health clinic or dispensary today for medical evaluation.",
+      action: "START_ORS_AND_CLINIC_VISIT",
       color: "orange",
       urgent: true,
     },
     LOW: {
       message:
-        "ℹ️ LOW STROKE RISK. Monitor your symptoms and consult a doctor within 24-48 hours.",
-      action: "CONSULT_DOCTOR",
+        "ℹ️ LOW CHOLERA RISK. Maintain strict hydration with clean, boiled or chlorinated water and ORS. Practice thorough handwashing with soap. If diarrhea increases or vomiting occurs, seek medical attention.",
+      action: "MONITOR_HYDRATION_AND_HYGIENE",
       color: "green",
       urgent: false,
     },
@@ -260,3 +378,8 @@ export function getRiskRecommendation(riskLevel: "LOW" | "MEDIUM" | "HIGH"): {
 
   return recommendations[riskLevel];
 }
+
+/**
+ * Backward compatibility alias
+ */
+export const getRiskRecommendation = getCholeraRiskRecommendation;

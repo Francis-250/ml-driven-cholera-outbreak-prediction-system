@@ -29,6 +29,7 @@ model User {
   twofactors             TwoFactor[]
 
   patientProfile     PatientProfile?
+  communityProfile   CommunityProfile?
   doctorProfile      DoctorProfile?
   assessments        Assessment[]
   notifications      Notification[]
@@ -38,6 +39,7 @@ model User {
   createdAssignments PatientDoctorAssignment[] @relation("AssignmentActor")
   doctorFeedback     DoctorFeedback[]          @relation("PatientFeedback")
   reviewedFeedback   DoctorFeedback[]          @relation("FeedbackReviewer")
+  environmentalData  EnvironmentalData[]       @relation("UserEnvironmentalData")
 
   @@unique([email])
   @@unique([phoneNumber])
@@ -108,6 +110,8 @@ model TwoFactor {
 }
 
 enum UserRole {
+  COMMUNITY
+  COMMUNITY_USER
   PATIENT
   DOCTOR
   ADMIN
@@ -117,6 +121,23 @@ enum RiskLevel {
   LOW
   MEDIUM
   HIGH
+}
+
+enum DehydrationLevel {
+  NONE
+  SOME
+  SEVERE
+}
+
+enum CaseValidationStatus {
+  PENDING
+  VALIDATED
+  REJECTED
+}
+
+enum CaseType {
+  COMMUNITY_REPORT
+  CLINICAL_CASE
 }
 
 enum NotificationStatus {
@@ -130,6 +151,7 @@ enum NotificationType {
   DOCTOR_COMMENT
   DOCTOR_ASSIGNED
   HIGH_RISK_ALERT
+  OUTBREAK_ALERT
   SYSTEM
 }
 
@@ -161,6 +183,10 @@ enum AuditAction {
   DOCTOR_FEEDBACK_ADDED
   DOCTOR_FEEDBACK_REVIEWED
   AI_LIMIT_UPDATED
+  DISEASE_CASE_CREATED
+  DISEASE_CASE_VALIDATED
+  ENVIRONMENTAL_DATA_UPLOADED
+  REPORT_EXPORTED
 }
 
 enum AssignmentSource {
@@ -242,34 +268,51 @@ model Assessment {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  symptoms     Json
-  symptomsText String? @db.Text
+  // Cholera Clinical & Epidemic Surveillance Fields
+  patientName       String?
+  district          String?              @default("Gasabo")
+  waterSource       String?              @default("Municipal Tap")
+  stoolType         String?              // e.g. "Rice-water watery stool", "Loose watery", "Soft"
+  dehydrationLevel  DehydrationLevel?    @default(SOME)
+  caseType          CaseType?            @default(COMMUNITY_REPORT)
+  validationStatus  CaseValidationStatus @default(PENDING)
+  validatedById     String?
+  validatedAt       DateTime?
+  validationNotes   String?              @db.Text
+  patientAge        Int?
+  patientGender     String?
+
+  symptoms          Json
+  symptomsText      String?              @db.Text
 
   riskLevel         RiskLevel
   confidenceScore   Float
   detectedSymptoms  Json
-  fastScore         Int       @default(0)
-  requiresEmergency Boolean   @default(false)
-  aiResponse        String    @db.Text
-  recommendation    String    @db.Text
+  fastScore         Int                  @default(0)
+  choleraRiskScore  Int                  @default(0)
+  requiresEmergency Boolean              @default(false)
+  aiResponse        String               @db.Text
+  recommendation    String               @db.Text
 
-  status           AssessmentStatus @default(COMPLETED)
-  reviewedByDoctor Boolean          @default(false)
-  reviewedAt       DateTime?
+  status            AssessmentStatus     @default(COMPLETED)
+  reviewedByDoctor  Boolean              @default(false)
+  reviewedAt        DateTime?
 
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  ipAddress         String?
+  userAgent         String?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
 
-  doctorComments   DoctorComment[]
-  notifications    Notification[]
-  aiUsageLogs      AiUsageLog[]
-  doctorAssignment PatientDoctorAssignment?
-  doctorFeedback   DoctorFeedback[]
+  doctorComments    DoctorComment[]
+  notifications     Notification[]
+  aiUsageLogs       AiUsageLog[]
+  doctorAssignment  PatientDoctorAssignment?
+  doctorFeedback    DoctorFeedback[]
 
   @@index([userId])
   @@index([riskLevel])
+  @@index([district])
+  @@index([validationStatus])
   @@index([status])
   @@index([createdAt])
   @@map("assessment")
@@ -427,3 +470,49 @@ model SystemSetting {
 
   @@map("system_setting")
 }
+
+model EnvironmentalData {
+  id                      String    @id @default(cuid())
+  district                String
+  location                String?
+  waterSource             String    // Tap, Shallow Well, River, Borehole, Tanker, Lake
+  waterContaminationLevel String    // SAFE, MODERATE, HIGH, CRITICAL
+  chlorineResidual        Float?    // mg/L (WHO target >= 0.5 mg/L at source)
+  sanitationScore         Float?    // 0 - 100
+  rainfallMm              Float?    // mm
+  temperature             Float?    // Celsius
+  turbidityNtu            Float?    // NTU
+  phLevel                 Float?    // pH
+  floodRisk               Boolean   @default(false)
+  outbreakRiskScore       Float     @default(0.0) // 0 - 100
+  riskLevel               RiskLevel @default(LOW)
+  notes                   String?   @db.Text
+  uploadedByUserId        String
+  uploadedBy              User      @relation("UserEnvironmentalData", fields: [uploadedByUserId], references: [id], onDelete: Cascade)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@index([district])
+  @@index([riskLevel])
+  @@index([createdAt])
+  @@map("environmental_data")
+}
+
+model CommunityProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  age                Int?
+  gender             String?
+  district           String?  @default("Gasabo")
+  sector             String?
+  cell               String?
+  primaryWaterSource String?
+  householdSize      Int?     @default(4)
+  existingConditions String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("community_profile")
+}
+

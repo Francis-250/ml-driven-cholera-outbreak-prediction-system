@@ -7,6 +7,13 @@ export async function proxy(request: NextRequest) {
     headers: request.headers,
   });
   const pathname = request.nextUrl.pathname;
+
+  // Seamlessly redirect legacy /patient paths to /community
+  if (pathname === "/patient" || pathname.startsWith("/patient/")) {
+    const newPath = pathname.replace(/^\/patient/, "/community");
+    return NextResponse.redirect(new URL(newPath, request.url));
+  }
+
   const requiredRole = roleForPath(pathname);
   const authEntry = pathname === "/auth/login" || pathname === "/auth/register";
   const isPageRequest = request.method === "GET" || request.method === "HEAD";
@@ -24,8 +31,17 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(home, request.url));
   }
 
-  if (requiredRole && session.user.role?.toLowerCase() !== requiredRole) {
-    return NextResponse.redirect(new URL(home, request.url));
+  if (requiredRole) {
+    const userRole = session.user.role?.toLowerCase();
+    const isAllowedCommunity =
+      requiredRole === "community" &&
+      (userRole === "community" ||
+        userRole === "community_user" ||
+        userRole === "patient");
+
+    if (!isAllowedCommunity && userRole !== requiredRole) {
+      return NextResponse.redirect(new URL(home, request.url));
+    }
   }
 
   return NextResponse.next();
@@ -33,6 +49,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/community/:path*",
     "/patient/:path*",
     "/doctor/:path*",
     "/admin/:path*",
