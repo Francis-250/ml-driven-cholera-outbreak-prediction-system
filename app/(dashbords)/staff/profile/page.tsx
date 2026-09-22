@@ -1,4 +1,4 @@
-import { DoctorProfileClient } from "@/components/doctor-profile-client";
+import { StaffProfileClient } from "@/components/staff-profile-client";
 import { requireStaffPage } from "@/lib/staff-auth";
 import prisma from "@/lib/prisma";
 
@@ -8,7 +8,7 @@ export default async function StaffProfilePage() {
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: {
-      doctorProfile: true,
+      staffProfile: true,
       sessions: { orderBy: { updatedAt: "desc" } },
     },
   });
@@ -24,7 +24,7 @@ export default async function StaffProfilePage() {
     }).format(date);
 
   return (
-    <DoctorProfileClient
+    <StaffProfileClient
       user={{
         name: user.name,
         email: user.email,
@@ -33,10 +33,10 @@ export default async function StaffProfilePage() {
         twoFactorEnabled: user.twoFactorEnabled ?? false,
       }}
       profile={{
-        specialization: user.doctorProfile?.specialization ?? null,
-        hospitalName: user.doctorProfile?.hospitalName ?? null,
-        licenseNumber: user.doctorProfile?.licenseNumber ?? null,
-        isVerified: user.doctorProfile?.isVerified ?? false,
+        specialization: user.staffProfile?.specialization ?? null,
+        hospitalName: user.staffProfile?.hospitalName ?? null,
+        licenseNumber: user.staffProfile?.licenseNumber ?? null,
+        isVerified: user.staffProfile?.isVerified ?? true,
       }}
       sessions={user.sessions.map((item) => ({
         id: item.id,

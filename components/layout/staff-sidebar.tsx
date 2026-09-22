@@ -145,6 +145,3 @@ export function StaffSidebar({
     </>
   );
 }
-
-// Backward compatibility alias
-export const DoctorSidebar = StaffSidebar;

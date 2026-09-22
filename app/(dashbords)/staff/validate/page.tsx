@@ -1,6 +1,6 @@
 import { requireStaffPage } from "@/lib/staff-auth";
 import prisma from "@/lib/prisma";
-import { DoctorValidationClient } from "@/components/doctor-validation-client";
+import { StaffValidationClient } from "@/components/staff-validation-client";
 
 export default async function StaffValidatePage() {
   await requireStaffPage();
@@ -59,7 +59,7 @@ export default async function StaffValidatePage() {
   }));
 
   return (
-    <DoctorValidationClient
+    <StaffValidationClient
       pendingRecords={formattedPending}
       recentValidated={formattedRecent}
     />

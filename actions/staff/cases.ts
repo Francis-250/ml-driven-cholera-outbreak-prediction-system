@@ -106,7 +106,7 @@ export async function submitDiseaseCase(input: SubmitDiseaseCaseInput) {
       aiResponse: aiStreamResult,
       recommendation,
       status: "REVIEWED",
-      reviewedByDoctor: true,
+      reviewedByStaff: true,
       reviewedAt: new Date(),
       ipAddress: requestHeaders.get("x-forwarded-for"),
       userAgent: requestHeaders.get("user-agent"),
@@ -134,9 +134,6 @@ export async function submitDiseaseCase(input: SubmitDiseaseCaseInput) {
   revalidatePath("/staff");
   revalidatePath("/staff/cases");
   revalidatePath("/staff/trends");
-  revalidatePath("/doctor");
-  revalidatePath("/doctor/cases");
-  revalidatePath("/doctor/trends");
   revalidatePath("/admin/records");
 
   return { caseId: record.id };

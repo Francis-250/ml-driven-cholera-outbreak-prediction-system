@@ -73,7 +73,7 @@ export function AdminReportsClient({
             </div>
             <h3 className="font-bold text-base mb-1">Cholera Disease Cases Report</h3>
             <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-              Complete registry of clinical cases, community symptom reports, patient ages, districts, dehydration severity, and validation outcomes.
+              Complete registry of clinical cases, field symptom reports, patient ages, districts, dehydration severity, and validation outcomes.
             </p>
             <p className="text-xs font-semibold text-foreground mb-4">
               Available Records: <span className="text-primary">{caseCount}</span>

@@ -29,7 +29,7 @@ export async function validateDiseaseRecord(input: ValidateRecordInput) {
     validatedById: string;
     validatedAt: Date;
     validationNotes: string | null;
-    reviewedByDoctor: boolean;
+    reviewedByStaff: boolean;
     reviewedAt: Date;
     status: "REVIEWED";
     riskLevel?: "LOW" | "MEDIUM" | "HIGH";
@@ -39,7 +39,7 @@ export async function validateDiseaseRecord(input: ValidateRecordInput) {
     validatedById: session.user.id,
     validatedAt: new Date(),
     validationNotes: input.validationNotes?.trim() || (input.decision === "VALIDATED" ? "Validated by staff." : "Case dismissed following clinical review."),
-    reviewedByDoctor: true,
+    reviewedByStaff: true,
     reviewedAt: new Date(),
     status: "REVIEWED",
   };
@@ -61,7 +61,7 @@ export async function validateDiseaseRecord(input: ValidateRecordInput) {
     data: {
       userId: record.userId,
       assessmentId: record.id,
-      type: "DOCTOR_ALERT",
+      type: "STAFF_ALERT",
       title: input.decision === "VALIDATED" ? "Case validated by healthcare staff" : "Case review completed",
       message: `Staff member ${session.user.name} has ${input.decision.toLowerCase()} the cholera symptom report: ${input.validationNotes || "Review complete."}`,
     },
@@ -88,6 +88,5 @@ export async function validateDiseaseRecord(input: ValidateRecordInput) {
   revalidatePath("/staff/validate");
   revalidatePath("/staff/cases");
   revalidatePath("/staff/trends");
-  revalidatePath("/doctor");
   revalidatePath("/admin/records");
 }

@@ -9,7 +9,7 @@ export default async function StaffLayout({
 }) {
   const session = await requireStaffPage();
 
-  const profile = await prisma.doctorProfile.findUnique({
+  const profile = await prisma.staffProfile.findUnique({
     where: { userId: session.user.id },
     select: { specialization: true },
   });

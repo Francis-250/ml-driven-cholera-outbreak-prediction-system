@@ -26,7 +26,7 @@ import {
   deleteEnvironmentalData,
   uploadEnvironmentalData,
   type UploadEnvironmentalInput,
-} from "@/actions/doctor/environmental";
+} from "@/actions/staff/environmental";
 import { cn } from "@/lib/utils";
 
 type RecordItem = {

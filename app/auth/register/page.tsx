@@ -68,7 +68,6 @@ export default function Register() {
       if (data) {
         sessionStorage.setItem("verifyEmail", verificationEmail);
         sessionStorage.setItem("registrationRole", "staff");
-        sessionStorage.removeItem("doctorRegistrationIntent");
 
         const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
           email: verificationEmail,

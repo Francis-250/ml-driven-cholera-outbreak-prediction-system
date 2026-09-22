@@ -2,7 +2,7 @@
 
 An intelligent, multi-role epidemiological surveillance, clinical triage, and early warning outbreak forecasting platform designed to combat *Vibrio cholerae* epidemics.
 
-The system combines patient symptom reporting with real-time environmental water surveillance telemetry, utilizing an advanced LLM inference engine (**`openai/gpt-oss-120b` via Groq**) and predictive scoring algorithms to identify emerging cholera hotspots, triage dehydration severity according to World Health Organization (WHO) protocols, and deliver life-saving clinical and community interventions.
+The system combines clinical symptom reporting with real-time environmental water surveillance telemetry, utilizing an advanced LLM inference engine (**`openai/gpt-oss-120b` via Groq**) and predictive scoring algorithms to identify emerging cholera hotspots, triage dehydration severity according to World Health Organization (WHO) protocols, and deliver life-saving clinical and public health interventions.
 
 ---
 
@@ -23,7 +23,7 @@ The system combines patient symptom reporting with real-time environmental water
    - Flags contaminated water points and triggers automated boil-water advisories and risk alerts.
 
 4. **Automated Notification & Audit Ecosystem**:
-   - Sends real-time alerts and email notifications (powered by Brevo) to doctors upon detection of high-risk community cases or environmental hazard spikes.
+   - Sends real-time alerts and email notifications (powered by Brevo) to surveillance staff upon detection of high-risk cases or environmental hazard spikes.
    - Maintains an immutable audit trail of every clinical diagnosis, validation action, environmental telemetry upload, and data export.
 
 ---
@@ -39,19 +39,17 @@ The system features two primary operational roles with dedicated workspaces:
   - Disease Cases & Clinical Outcomes
   - Environmental Telemetry & Water Contamination
   - System Security & Operational Audit Logs (`/admin/reports`)
-* **View Audit Logs**: Comprehensive surveillance event log monitoring logins, case submissions, medical validations, and outbreak alerts (`/admin/audit`).
+* **View Audit Logs**: Comprehensive surveillance event log monitoring logins, case submissions, validations, and outbreak alerts (`/admin/audit`).
 
 ### 2. Public Health Staff (`staff`)
 * **Submit Disease Cases**: Register confirmed or suspected cholera patients with clinical signs (rice-water stool, dehydration grade, vomiting), symptoms, and suspected contaminated water sources (`/staff/cases/new`).
 * **Upload Environmental Data & Datasets**: 
   - Direct form submission for water quality metrics across surveillance stations (`/staff/environmental`).
   - **Bulk CSV Ingestion**: Upload complete historical or batch telemetry datasets via CSV.
-* **Validate Records**: Clinical triage review queue to review triage submissions, confirm or reject suspected cases, and attach clinical interventions (`/staff/validate`).
+* **Validate Records**: Clinical triage review queue to review submissions, confirm or reject suspected cases, and attach clinical interventions (`/staff/validate`).
 * **Analyze Trends**: Interactive epidemiological curves, weekly attack rates, and district risk heatmaps (`/staff/trends`).
 * **Generate Reports**: Filter by district or time range and export comprehensive clinical outbreak summaries in CSV format (`/staff/reports`).
 * **View Predictions & Receive Risk Alerts**: 7-day predictive district outbreak forecasting powered by `openai/gpt-oss-120b`, displaying priority containment zones and immediate risk alerts (`/staff/predictions`).
-
-> **Note on Legacy Routes**: Existing endpoints (`/doctor/*`, `/community/*`, and `/patient/*`) are backwards-compatible and automatically redirect to their respective `/staff/*` destinations.
 
 ---
 
@@ -63,8 +61,6 @@ The database comes pre-seeded with test accounts for each role:
 |---|---|---|---|
 | **Administrator** | `admin@cholerapredict.test` | `CholeraPredict123!` | `/admin` |
 | **Public Health Staff** | `staff@cholerapredict.test` | `CholeraPredict123!` | `/staff` |
-
-*(Legacy logins `doctor@cholerapredict.test` and `community@cholerapredict.test` are also preserved and mapped to the Staff workspace).*
 
 ---
 
@@ -122,7 +118,7 @@ BREVO_SENDER_NAME="ML Driven Cholera Outbreak Prediction System"
 # Push schema to PostgreSQL
 pnpm db:push
 
-# Seed admin, doctor, community users, and initial surveillance telemetry
+# Seed admin and staff accounts and initial surveillance telemetry
 pnpm db:seed
 ```
 

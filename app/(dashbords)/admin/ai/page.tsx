@@ -9,7 +9,7 @@ import { DEFAULT_AI_DAILY_LIMIT, GLOBAL_AI_DAILY_LIMIT_KEY } from "@/lib/ai-limi
 
 export default async function AdminAiPage() {
   await requireAdminPage();
-  const [usage, datasets, total, failures, tokens, globalLimitSetting, patients] = await Promise.all([
+  const [usage, datasets, total, failures, tokens, globalLimitSetting, staffUsers] = await Promise.all([
     prisma.aiUsageLog.findMany({ orderBy: { createdAt: "desc" }, take: 50, include: { user: { select: { name: true } } } }),
     prisma.aiDataset.findMany({ orderBy: { createdAt: "desc" } }),
     prisma.aiUsageLog.count(),
@@ -17,7 +17,7 @@ export default async function AdminAiPage() {
     prisma.aiUsageLog.aggregate({ _sum: { totalTokens: true } }),
     prisma.systemSetting.findUnique({ where: { key: GLOBAL_AI_DAILY_LIMIT_KEY }, select: { value: true } }),
     prisma.user.findMany({
-      where: { role: { equals: "patient", mode: "insensitive" } },
+      where: { role: { equals: "staff", mode: "insensitive" } },
       orderBy: { name: "asc" },
       select: { id: true, name: true, email: true, aiDailyAssessmentLimit: true },
     }),
@@ -36,7 +36,7 @@ export default async function AdminAiPage() {
         <div className="rounded-lg border p-4"><p className="text-2xl font-semibold">{(tokens._sum.totalTokens ?? 0).toLocaleString()}</p><p className="text-xs text-muted-foreground mt-1">Tokens used</p></div>
       </div>
       <div className="space-y-6">
-        <div><p className="mb-3 text-sm font-medium">AI access limits</p><AdminAiLimits globalLimit={globalLimit} users={patients.map((user) => ({ id: user.id, name: user.name, email: user.email, limit: user.aiDailyAssessmentLimit }))} /></div>
+        <div><p className="mb-3 text-sm font-medium">AI access limits</p><AdminAiLimits globalLimit={globalLimit} users={staffUsers.map((user) => ({ id: user.id, name: user.name, email: user.email, limit: user.aiDailyAssessmentLimit }))} /></div>
         <div><p className="mb-3 text-sm font-medium">Datasets</p><AdminDatasetsClient datasets={datasets.map((item) => ({ id: item.id, name: item.name, fileName: item.fileName, records: item.recordCount, active: item.isActive, createdAt: formatAdminDate(item.createdAt) }))} /></div>
         <div><p className="mb-3 text-sm font-medium">Recent model calls</p><div className="rounded-lg border divide-y">{usage.map((item) => <div key={item.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 px-4 py-4 items-center"><div className="md:col-span-3"><p className="text-sm font-medium">{item.model.replaceAll("_", " ")}</p><p className="text-xs text-muted-foreground">{item.callType.replaceAll("_", " ")}</p></div><div className="md:col-span-2"><Badge variant={item.status === "SUCCESS" ? "secondary" : "destructive"}>{item.status}</Badge></div><p className="md:col-span-2 text-sm">{item.latencyMs} ms</p><p className="md:col-span-2 text-xs text-muted-foreground">{item.totalTokens.toLocaleString()} tokens</p><div className="md:col-span-3 md:text-right"><p className="text-xs text-muted-foreground">{formatAdminDateTime(item.createdAt)}</p><p className="text-xs text-muted-foreground">{item.user?.name ?? "System"}</p></div></div>)}{usage.length === 0 && <p className="py-12 text-center text-sm text-muted-foreground">No AI usage recorded.</p>}</div></div>
       </div>

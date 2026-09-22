@@ -14,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { validateDiseaseRecord } from "@/actions/doctor/validation";
+import { validateDiseaseRecord } from "@/actions/staff/validation";
 import { cn } from "@/lib/utils";
 
 type PendingRecord = {
@@ -43,7 +43,7 @@ type RecentValidated = {
   date: string;
 };
 
-export function DoctorValidationClient({
+export function StaffValidationClient({
   pendingRecords,
   recentValidated,
 }: {

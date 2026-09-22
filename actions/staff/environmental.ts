@@ -81,7 +81,6 @@ export async function uploadEnvironmentalData(input: UploadEnvironmentalInput) {
   revalidatePath("/staff/environmental");
   revalidatePath("/staff/predictions");
   revalidatePath("/staff/trends");
-  revalidatePath("/doctor");
   revalidatePath("/admin");
 
   return { id: record.id, riskScore: riskCalculation.riskScore, riskLevel: riskCalculation.riskLevel };
@@ -162,7 +161,6 @@ export async function bulkUploadEnvironmentalData(records: UploadEnvironmentalIn
   revalidatePath("/staff/environmental");
   revalidatePath("/staff/predictions");
   revalidatePath("/staff/trends");
-  revalidatePath("/doctor");
   revalidatePath("/admin");
 
   return {
@@ -175,5 +173,4 @@ export async function deleteEnvironmentalData(id: string) {
   await requireStaffAction();
   await prisma.environmentalData.delete({ where: { id } });
   revalidatePath("/staff/environmental");
-  revalidatePath("/doctor/environmental");
 }

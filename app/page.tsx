@@ -242,7 +242,7 @@ export default function Home() {
                 From Environmental Signal to Clinical Action
               </h2>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                A seamless data loop that bridges community symptom reporting, hydrological surveillance, and clinician validation.
+                A seamless data loop that bridges field symptom reporting, hydrological surveillance, and staff validation.
               </p>
             </div>
 

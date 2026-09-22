@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+import { ROLE_OPTIONS, normalizeRole } from "@/lib/roles";
+
 export type AdminUserItem = {
   id: string;
   name: string;
@@ -55,20 +57,17 @@ export function AdminUsersClient({ users }: { users: AdminUserItem[] }) {
             <p className="md:col-span-2 text-xs text-muted-foreground">{user.createdAt}</p>
             <div className="md:col-span-2">
               <Select
-                value={
-                  ["staff", "doctor", "community", "community_user", "patient"].includes(
-                    user.role.toLowerCase(),
-                  )
-                    ? "staff"
-                    : user.role.toLowerCase()
-                }
+                value={normalizeRole(user.role)}
                 disabled={pending}
                 onValueChange={(role) => run(() => setUserRole(user.id, role))}
               >
                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="staff">Public Health Staff</SelectItem>
-                  <SelectItem value="admin">Administrator</SelectItem>
+                  {ROLE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

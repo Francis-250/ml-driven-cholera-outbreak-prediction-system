@@ -56,9 +56,9 @@ type AuditItem = {
 
 type Stats = {
   users: number;
-  doctors: number;
+  staff: number;
   assessments: number;
-  unresolvedFeedback: number;
+  environmental: number;
 };
 
 function initials(name: string) {
@@ -200,9 +200,9 @@ export function AdminProfileClient({
             <div className="mt-4 grid grid-cols-2 gap-2">
               {[
                 ["Users", stats.users],
-                ["Doctors", stats.doctors],
-                ["Assessments", stats.assessments],
-                ["Feedback", stats.unresolvedFeedback],
+                ["Staff", stats.staff],
+                ["Cases", stats.assessments],
+                ["Surveillance", stats.environmental],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-lg border bg-muted/30 p-3">
                   <p className="text-lg font-semibold">{value}</p>
@@ -270,10 +270,10 @@ export function AdminProfileClient({
             <SectionTitle>Role and permissions</SectionTitle>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {[
-                ["User management", "Change roles, suspend accounts, and manage access."],
-                ["Doctor approvals", "Review doctor details, approve, reject, or revoke access."],
-                ["Clinical oversight", "Assign doctors and monitor assessment review status."],
-                ["AI controls", "Limit AI usage globally or for individual patients."],
+                ["User management", "Change roles (Admin & Staff), suspend accounts, and manage access."],
+                ["Disease records", "Monitor clinical cases, review triage validation, and inspect outbreaks."],
+                ["Surveillance oversight", "Inspect environmental water quality data and precipitation telemetry."],
+                ["Authoritative exports", "Generate and download surveillance CSV reports and immutable audit logs."],
               ].map(([title, body]) => (
                 <div key={title} className="rounded-lg border p-4">
                   <div className="flex items-start gap-3">

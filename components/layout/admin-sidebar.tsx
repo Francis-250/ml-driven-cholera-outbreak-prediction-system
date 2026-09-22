@@ -12,7 +12,6 @@ import {
   LogOut,
   Menu,
   Settings,
-  Stethoscope,
   Users,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
@@ -32,7 +31,6 @@ const links = [
   { label: "Disease Records", href: "/admin/records", icon: ClipboardList },
   { label: "Export Reports", href: "/admin/reports", icon: FileDown },
   { label: "Audit Logs", href: "/admin/audit", icon: FileClock },
-  { label: "Doctor Approvals", href: "/admin/doctors", icon: Stethoscope },
   { label: "AI Operations", href: "/admin/ai", icon: Brain },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];

@@ -5,16 +5,16 @@ import prisma from "@/lib/prisma";
 
 export default async function AdminSettingsPage() {
   const session = await requireAdminPage();
-  const [user, users, doctors, assessments, unresolvedFeedback, auditLogs] =
+  const [user, users, staff, assessments, environmental, auditLogs] =
     await Promise.all([
       prisma.user.findUnique({
         where: { id: session.user.id },
         include: { sessions: { orderBy: { updatedAt: "desc" } } },
       }),
       prisma.user.count(),
-      prisma.doctorProfile.count(),
+      prisma.user.count({ where: { role: "staff" } }),
       prisma.assessment.count(),
-      prisma.doctorFeedback.count({ where: { status: "PENDING" } }),
+      prisma.environmentalData.count(),
       prisma.auditLog.findMany({
         where: { userId: session.user.id },
         orderBy: { createdAt: "desc" },
@@ -51,7 +51,7 @@ export default async function AdminSettingsPage() {
         description: item.description,
         createdAt: formatAdminDateTime(item.createdAt),
       }))}
-      stats={{ users, doctors, assessments, unresolvedFeedback }}
+      stats={{ users, staff, assessments, environmental }}
     />
   );
 }

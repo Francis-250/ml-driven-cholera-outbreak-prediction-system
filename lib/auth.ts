@@ -9,7 +9,7 @@ import {
   username,
 } from "better-auth/plugins";
 
-import { ac, admin, staff, doctor, community, patient } from "./permission";
+import { ac, admin, staff } from "./permission";
 import { nextCookies } from "better-auth/next-js";
 import { sendEmail, sendEmailOrThrow } from "./brevo";
 
@@ -22,10 +22,26 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     revokeSessionsOnPasswordReset: true,
     async sendResetPassword({ user, url }) {
-      await sendEmail({
+      await sendEmailOrThrow({
         to: user.email,
         subject: "Reset Your Password - Cholera Outbreak Prediction System",
-        html: `<p>Click the link to reset your password: <a href="${url}">${url}</a></p>`,
+        text: `Click the link to reset your password: ${url}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+            <h2 style="color: #1e3a8a;">Reset your password</h2>
+            <p>Hello ${user.name || "User"},</p>
+            <p>You requested a password reset for your account on the <strong>ML-Driven Cholera Outbreak Prediction System</strong>.</p>
+            <div style="margin: 24px 0;">
+              <a href="${url}" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                Reset Password
+              </a>
+            </div>
+            <p style="color: #6b7280; font-size: 13px;">Or copy and paste this link into your browser:<br/><a href="${url}">${url}</a></p>
+            <p style="color: #6b7280; font-size: 12px; margin-top: 24px;">If you did not request this, please ignore this email.</p>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;" />
+            <p style="color: #9ca3af; font-size: 11px;">ML-Driven Cholera Outbreak Prediction System</p>
+          </div>
+        `,
       });
     },
   },
@@ -40,7 +56,7 @@ export const auth = betterAuth({
     adminPlugin({
       defaultRole: "staff",
       ac,
-      roles: { admin, staff, doctor, community, patient },
+      roles: { admin, staff },
     }),
     phoneNumber(),
     username(),

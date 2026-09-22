@@ -102,14 +102,9 @@ export default function VerifyOTP() {
 
       if (data) {
         toast.success("Email verified successfully!");
-        const role = sessionStorage.getItem("registrationRole");
-        if (role === "doctor") {
-          router.push("/auth/doctor-onboarding");
-        } else {
-          sessionStorage.removeItem("verifyEmail");
-          sessionStorage.removeItem("registrationRole");
-          router.push("/auth/login");
-        }
+        sessionStorage.removeItem("verifyEmail");
+        sessionStorage.removeItem("registrationRole");
+        router.push("/auth/login");
       }
     } catch (error) {
       console.error("Verification error:", error);

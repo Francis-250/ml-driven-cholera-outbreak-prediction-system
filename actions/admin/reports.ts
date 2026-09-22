@@ -49,7 +49,7 @@ export async function exportDiseaseCasesCSV() {
     `"${c.requiresEmergency ? "YES" : "NO"}"`,
     `"${c.validationStatus}"`,
     `"${c.validatedAt ? c.validatedAt.toISOString() : "N/A"}"`,
-    `"${c.caseType ?? "COMMUNITY_REPORT"}"`,
+    `"${c.caseType ?? "FIELD_REPORT"}"`,
     `"${c.user?.email || "N/A"}"`,
   ]);
 

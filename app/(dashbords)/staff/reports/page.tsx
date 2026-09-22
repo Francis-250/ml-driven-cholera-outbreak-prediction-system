@@ -1,6 +1,6 @@
 import { requireStaffPage } from "@/lib/staff-auth";
 import prisma from "@/lib/prisma";
-import { DoctorReportsClient } from "@/components/doctor-reports-client";
+import { StaffReportsClient } from "@/components/staff-reports-client";
 
 export default async function StaffReportsPage() {
   await requireStaffPage();
@@ -8,21 +8,16 @@ export default async function StaffReportsPage() {
   const [cases, environmental] = await Promise.all([
     prisma.assessment.findMany({
       orderBy: { createdAt: "desc" },
-      include: {
-        user: { select: { name: true, email: true } },
-      },
+      include: { user: { select: { name: true } } },
     }),
     prisma.environmentalData.findMany({
       orderBy: { createdAt: "desc" },
-      include: {
-        uploadedBy: { select: { name: true } },
-      },
     }),
   ]);
 
   const formattedCases = cases.map((c) => ({
     id: c.id,
-    patientName: c.patientName || c.user?.name || "Patient",
+    patientName: c.patientName || c.user.name,
     age: c.patientAge,
     gender: c.patientGender,
     district: c.district || "Gasabo",
@@ -32,13 +27,13 @@ export default async function StaffReportsPage() {
     riskLevel: c.riskLevel,
     confidenceScore: Math.round(c.confidenceScore * 100),
     validationStatus: c.validationStatus,
-    caseType: c.caseType ?? "CLINICAL_CASE",
+    caseType: c.caseType || "CLINICAL_CASE",
+    createdAtIso: c.createdAt.toISOString(),
     date: new Intl.DateTimeFormat("en", {
       month: "short",
       day: "numeric",
       year: "numeric",
     }).format(c.createdAt),
-    createdAtIso: c.createdAt.toISOString(),
   }));
 
   const formattedEnv = environmental.map((e) => ({
@@ -60,7 +55,7 @@ export default async function StaffReportsPage() {
   }));
 
   return (
-    <DoctorReportsClient
+    <StaffReportsClient
       cases={formattedCases}
       environmental={formattedEnv}
     />

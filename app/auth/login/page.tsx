@@ -46,7 +46,7 @@ export default function LoginForm() {
           await authClient.signOut();
           const message =
             access.reason ??
-            "Your doctor account is waiting for administrator approval.";
+            "Account access is restricted.";
           setLoginError(message);
           toast.error(message);
         }

@@ -52,7 +52,7 @@ export function AdminAiLimits({
     <div className="space-y-6">
       <div className="rounded-lg border p-5">
         <Label htmlFor="global-ai-limit">Global daily assessment limit</Label>
-        <p className="mt-1 text-xs text-muted-foreground">Applies to every patient without a user override. Use 0 to disable or unlimited for no limit.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Applies to all users without an individual override. Use 0 to disable or unlimited for no limit.</p>
         <div className="mt-3 flex max-w-md gap-2">
           <Input id="global-ai-limit" value={globalValue} onChange={(event) => setGlobalValue(event.target.value)} />
           <Button disabled={pending} onClick={saveGlobal}>Save</Button>

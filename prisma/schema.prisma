@@ -28,18 +28,12 @@ model User {
   accounts               Account[]
   twofactors             TwoFactor[]
 
-  patientProfile     PatientProfile?
-  communityProfile   CommunityProfile?
-  doctorProfile      DoctorProfile?
+  staffProfile       StaffProfile?
   assessments        Assessment[]
   notifications      Notification[]
   auditLogs          AuditLog[]
   aiUsageLogs        AiUsageLog[]
-  patientAssignments PatientDoctorAssignment[] @relation("PatientAssignments")
-  createdAssignments PatientDoctorAssignment[] @relation("AssignmentActor")
-  doctorFeedback     DoctorFeedback[]          @relation("PatientFeedback")
-  reviewedFeedback   DoctorFeedback[]          @relation("FeedbackReviewer")
-  environmentalData  EnvironmentalData[]       @relation("UserEnvironmentalData")
+  environmentalData  EnvironmentalData[] @relation("UserEnvironmentalData")
 
   @@unique([email])
   @@unique([phoneNumber])
@@ -110,11 +104,8 @@ model TwoFactor {
 }
 
 enum UserRole {
-  COMMUNITY
-  COMMUNITY_USER
-  PATIENT
-  DOCTOR
   ADMIN
+  STAFF
 }
 
 enum RiskLevel {
@@ -136,7 +127,7 @@ enum CaseValidationStatus {
 }
 
 enum CaseType {
-  COMMUNITY_REPORT
+  FIELD_REPORT
   CLINICAL_CASE
 }
 
@@ -147,9 +138,7 @@ enum NotificationStatus {
 
 enum NotificationType {
   ASSESSMENT_RESULT
-  DOCTOR_ALERT
-  DOCTOR_COMMENT
-  DOCTOR_ASSIGNED
+  STAFF_ALERT
   HIGH_RISK_ALERT
   OUTBREAK_ALERT
   SYSTEM
@@ -168,10 +157,7 @@ enum AuditAction {
   ASSESSMENT_CREATED
   ASSESSMENT_VIEWED
   ASSESSMENT_DELETED
-  DOCTOR_COMMENT_ADDED
-  DOCTOR_COMMENT_DELETED
-  DOCTOR_VERIFIED
-  DOCTOR_UNVERIFIED
+  STAFF_VERIFIED
   ADMIN_USER_DELETED
   ADMIN_ROLE_CHANGED
   ADMIN_DATASET_UPLOADED
@@ -179,24 +165,11 @@ enum AuditAction {
   AI_CLASSIFICATION_TRIGGERED
   NOTIFICATION_SENT
   NOTIFICATION_READ
-  ASSESSMENT_ASSIGNED
-  DOCTOR_FEEDBACK_ADDED
-  DOCTOR_FEEDBACK_REVIEWED
   AI_LIMIT_UPDATED
   DISEASE_CASE_CREATED
   DISEASE_CASE_VALIDATED
   ENVIRONMENTAL_DATA_UPLOADED
   REPORT_EXPORTED
-}
-
-enum AssignmentSource {
-  PATIENT
-  ADMIN
-}
-
-enum DoctorFeedbackStatus {
-  PENDING
-  RESOLVED
 }
 
 enum AiModel {
@@ -222,45 +195,23 @@ enum AssessmentStatus {
   FLAGGED
 }
 
-model PatientProfile {
-  id                 String   @id @default(cuid())
-  userId             String   @unique
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  age                Int?
-  gender             String?
-  bloodType          String?
-  allergies          String?
-  existingConditions String?
-  smokingStatus      Boolean? @default(false)
-  diabetic           Boolean? @default(false)
-  hypertension       Boolean? @default(false)
-  heartDisease       Boolean? @default(false)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  @@map("patient_profile")
-}
-
-model DoctorProfile {
-  id                      String                    @id @default(cuid())
-  userId                  String                    @unique
-  user                    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+model StaffProfile {
+  id                      String    @id @default(cuid())
+  userId                  String    @unique
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   specialization          String?
   hospitalName            String?
-  licenseNumber           String?                   @unique
-  isVerified              Boolean                   @default(false)
+  licenseNumber           String?   @unique
+  isVerified              Boolean   @default(true)
   verifiedAt              DateTime?
-  isApprovedByAdmin       Boolean                   @default(false)
+  isApprovedByAdmin       Boolean   @default(true)
   approvedByAdminAt       DateTime?
   approvalRejectedAt      DateTime?
   approvalRejectionReason String?
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @updatedAt
-  comments                DoctorComment[]
-  assignments             PatientDoctorAssignment[]
-  feedback                DoctorFeedback[]
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
 
-  @@map("doctor_profile")
+  @@map("staff_profile")
 }
 
 model Assessment {
@@ -274,7 +225,7 @@ model Assessment {
   waterSource       String?              @default("Municipal Tap")
   stoolType         String?              // e.g. "Rice-water watery stool", "Loose watery", "Soft"
   dehydrationLevel  DehydrationLevel?    @default(SOME)
-  caseType          CaseType?            @default(COMMUNITY_REPORT)
+  caseType          CaseType?            @default(CLINICAL_CASE)
   validationStatus  CaseValidationStatus @default(PENDING)
   validatedById     String?
   validatedAt       DateTime?
@@ -295,7 +246,7 @@ model Assessment {
   recommendation    String               @db.Text
 
   status            AssessmentStatus     @default(COMPLETED)
-  reviewedByDoctor  Boolean              @default(false)
+  reviewedByStaff   Boolean              @default(false)
   reviewedAt        DateTime?
 
   ipAddress         String?
@@ -303,11 +254,8 @@ model Assessment {
   createdAt         DateTime             @default(now())
   updatedAt         DateTime             @updatedAt
 
-  doctorComments    DoctorComment[]
   notifications     Notification[]
   aiUsageLogs       AiUsageLog[]
-  doctorAssignment  PatientDoctorAssignment?
-  doctorFeedback    DoctorFeedback[]
 
   @@index([userId])
   @@index([riskLevel])
@@ -316,64 +264,6 @@ model Assessment {
   @@index([status])
   @@index([createdAt])
   @@map("assessment")
-}
-
-model PatientDoctorAssignment {
-  id               String           @id @default(cuid())
-  assessmentId     String           @unique
-  assessment       Assessment       @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  patientUserId    String
-  patient          User             @relation("PatientAssignments", fields: [patientUserId], references: [id], onDelete: Cascade)
-  doctorProfileId  String
-  doctorProfile    DoctorProfile    @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
-  assignedByUserId String
-  assignedBy       User             @relation("AssignmentActor", fields: [assignedByUserId], references: [id], onDelete: Restrict)
-  source           AssignmentSource
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-
-  @@index([patientUserId])
-  @@index([doctorProfileId])
-  @@map("patient_doctor_assignment")
-}
-
-model DoctorFeedback {
-  id               String               @id @default(cuid())
-  assessmentId     String
-  assessment       Assessment           @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  patientUserId    String
-  patient          User                 @relation("PatientFeedback", fields: [patientUserId], references: [id], onDelete: Cascade)
-  doctorProfileId  String
-  doctorProfile    DoctorProfile        @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
-  comment          String               @db.Text
-  status           DoctorFeedbackStatus @default(PENDING)
-  adminNote        String?              @db.Text
-  reviewedByUserId String?
-  reviewedBy       User?                @relation("FeedbackReviewer", fields: [reviewedByUserId], references: [id], onDelete: SetNull)
-  reviewedAt       DateTime?
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
-
-  @@unique([assessmentId, patientUserId, doctorProfileId])
-  @@index([doctorProfileId])
-  @@index([status])
-  @@map("doctor_feedback")
-}
-
-model DoctorComment {
-  id              String        @id @default(cuid())
-  assessmentId    String
-  assessment      Assessment    @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  doctorProfileId String
-  doctorProfile   DoctorProfile @relation(fields: [doctorProfileId], references: [id], onDelete: Cascade)
-  comment         String        @db.Text
-  isUrgent        Boolean       @default(false)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  @@index([assessmentId])
-  @@index([doctorProfileId])
-  @@map("doctor_comment")
 }
 
 model Notification {
@@ -497,22 +387,3 @@ model EnvironmentalData {
   @@index([createdAt])
   @@map("environmental_data")
 }
-
-model CommunityProfile {
-  id                 String   @id @default(cuid())
-  userId             String   @unique
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  age                Int?
-  gender             String?
-  district           String?  @default("Gasabo")
-  sector             String?
-  cell               String?
-  primaryWaterSource String?
-  householdSize      Int?     @default(4)
-  existingConditions String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  @@map("community_profile")
-}
-

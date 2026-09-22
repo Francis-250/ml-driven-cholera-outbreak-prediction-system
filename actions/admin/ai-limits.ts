@@ -23,7 +23,7 @@ export async function setGlobalAiDailyLimit(limit: number | null) {
       create: {
         key: GLOBAL_AI_DAILY_LIMIT_KEY,
         value: normalized === null ? "-1" : String(normalized),
-        description: "Default daily AI assessment limit for all patients. -1 means unlimited.",
+        description: "Default daily AI assessment limit for staff users. -1 means unlimited.",
         updatedBy: session.user.id,
       },
       update: {

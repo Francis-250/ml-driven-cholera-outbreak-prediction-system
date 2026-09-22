@@ -1,6 +1,6 @@
 import { requireStaffPage } from "@/lib/staff-auth";
 import prisma from "@/lib/prisma";
-import { EnvironmentalUploadClient } from "@/components/doctor-environmental-client";
+import { EnvironmentalUploadClient } from "@/components/staff-environmental-client";
 
 export default async function StaffEnvironmentalPage() {
   await requireStaffPage();

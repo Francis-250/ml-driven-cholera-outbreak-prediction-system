@@ -22,19 +22,15 @@ export default async function AdminDashboard() {
   await requireAdminPage();
   const [
     users,
-    doctors,
     cases,
     environmental,
-    pendingDoctors,
     pendingCases,
     highRiskCases,
     recentLogs,
   ] = await Promise.all([
     prisma.user.count(),
-    prisma.doctorProfile.count(),
     prisma.assessment.count(),
     prisma.environmentalData.count(),
-    prisma.doctorProfile.count({ where: { isApprovedByAdmin: false } }),
     prisma.assessment.count({ where: { validationStatus: "PENDING" } }),
     prisma.assessment.count({ where: { riskLevel: "HIGH" } }),
     prisma.auditLog.findMany({
@@ -56,7 +52,7 @@ export default async function AdminDashboard() {
       <AdminPageHeader
         eyebrow="Epidemic Surveillance Administration"
         title="Command Center"
-        description="Monitor community reports, clinician validations, environmental hazards, and authoritative reports."
+        description="Monitor disease reports, staff validations, environmental hazards, and authoritative reports."
       />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
@@ -83,8 +79,8 @@ export default async function AdminDashboard() {
             className="rounded-xl border bg-card p-4 flex items-center justify-between hover:bg-muted/30 transition-colors"
           >
             <div>
-              <p className="text-sm font-semibold">Unvalidated Community Reports</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Awaiting clinician validation</p>
+              <p className="text-sm font-semibold">Unvalidated Disease Reports</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Awaiting staff clinical validation</p>
             </div>
             <Badge variant={pendingCases ? "destructive" : "secondary"}>
               {pendingCases}
@@ -92,16 +88,14 @@ export default async function AdminDashboard() {
           </Link>
 
           <Link
-            href="/admin/doctors"
+            href="/admin/audit"
             className="rounded-xl border bg-card p-4 flex items-center justify-between hover:bg-muted/30 transition-colors"
           >
             <div>
-              <p className="text-sm font-semibold">Doctor Approvals</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Credentials awaiting review</p>
+              <p className="text-sm font-semibold">Surveillance Event Trail</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Immutable audit event logs</p>
             </div>
-            <Badge variant={pendingDoctors ? "destructive" : "secondary"}>
-              {pendingDoctors}
-            </Badge>
+            <Badge variant="outline">Active</Badge>
           </Link>
 
           <Link

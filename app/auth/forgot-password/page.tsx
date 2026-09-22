@@ -36,7 +36,7 @@ export default function ForgotPassword() {
         {/* Left */}
         <div>
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
-            StrokeCheck
+            ML-Driven Cholera Outbreak Prediction System
           </p>
           <h1 className="text-4xl font-semibold tracking-tight leading-tight mb-4">
             Forgot Your <br /> Password?

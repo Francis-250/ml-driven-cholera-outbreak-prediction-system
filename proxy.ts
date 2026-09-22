@@ -8,22 +8,6 @@ export async function proxy(request: NextRequest) {
   });
   const pathname = request.nextUrl.pathname;
 
-  // Seamlessly redirect legacy /doctor paths to /staff
-  if (pathname === "/doctor" || pathname.startsWith("/doctor/")) {
-    const newPath = pathname.replace(/^\/doctor/, "/staff");
-    return NextResponse.redirect(new URL(newPath, request.url));
-  }
-
-  // Redirect legacy /community and /patient paths to /staff
-  if (
-    pathname === "/community" ||
-    pathname.startsWith("/community/") ||
-    pathname === "/patient" ||
-    pathname.startsWith("/patient/")
-  ) {
-    return NextResponse.redirect(new URL("/staff", request.url));
-  }
-
   const requiredRole = roleForPath(pathname);
   const authEntry = pathname === "/auth/login" || pathname === "/auth/register";
   const isPageRequest = request.method === "GET" || request.method === "HEAD";
@@ -43,15 +27,7 @@ export async function proxy(request: NextRequest) {
 
   if (requiredRole) {
     const userRole = session.user.role?.toLowerCase();
-    const isAllowedStaff =
-      requiredRole === "staff" &&
-      (userRole === "staff" ||
-        userRole === "doctor" ||
-        userRole === "community" ||
-        userRole === "community_user" ||
-        userRole === "patient");
-
-    if (!isAllowedStaff && userRole !== requiredRole) {
+    if (userRole !== requiredRole) {
       return NextResponse.redirect(new URL(home, request.url));
     }
   }
@@ -62,9 +38,6 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     "/staff/:path*",
-    "/doctor/:path*",
-    "/community/:path*",
-    "/patient/:path*",
     "/admin/:path*",
     "/auth/login",
     "/auth/register",

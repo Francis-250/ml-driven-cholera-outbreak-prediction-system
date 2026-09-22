@@ -1,3 +1,11 @@
+import dns from "node:dns";
+
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch {
+  // Ignore in environments where not supported
+}
+
 interface EmailOptions {
   to: string;
   subject: string;
@@ -10,7 +18,7 @@ export const sendEmail = async ({ to, subject, html, text }: EmailOptions) => {
     const apiKey = process.env.BREVO_API_KEY;
     const senderEmail =
       process.env.BREVO_SENDER_EMAIL ?? process.env.BREVO_EMAIL_USER;
-    const senderName = process.env.BREVO_SENDER_NAME || "StrokeCheck";
+    const senderName = process.env.BREVO_SENDER_NAME || "ML-Driven Cholera Outbreak Prediction System";
 
     if (!apiKey) {
       console.error("Email error: BREVO_API_KEY is not configured");
@@ -74,7 +82,7 @@ export const sendEmailOrThrow = async (options: EmailOptions) => {
   }
 };
 
-export const sendDoctorAlertEmail = async ({
+export const sendStaffAlertEmail = async ({
   patientName,
   assessmentId,
   riskLevel,
@@ -87,21 +95,23 @@ export const sendDoctorAlertEmail = async ({
   confidenceScore: number;
   district?: string;
 }) => {
-  const doctorAlertEmail = process.env.DOCTOR_ALERT_EMAIL;
+  const alertEmail =
+    process.env.STAFF_ALERT_EMAIL ||
+    process.env.BREVO_EMAIL_USER ||
+    process.env.BREVO_SENDER_EMAIL;
 
-  if (!doctorAlertEmail) {
-    console.error("Email error: DOCTOR_ALERT_EMAIL is not configured");
+  if (!alertEmail) {
     return false;
   }
 
   return sendEmail({
-    to: doctorAlertEmail,
+    to: alertEmail,
     subject: `[CHOLERA OUTBREAK ALERT] High-risk case reported: ${patientName}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #fee2e2; border-radius: 8px; padding: 20px;">
         <h2 style="color: #b91c1c;">⚠️ High-Risk Cholera Case Alert</h2>
-        <p>A high-risk cholera / severe dehydration report has been registered and requires immediate clinician validation.</p>
-        <p><strong>Patient / Reporter:</strong> ${patientName}</p>
+        <p>A high-risk cholera / severe dehydration report has been registered and requires immediate surveillance staff validation.</p>
+        <p><strong>Case Subject / Reporter:</strong> ${patientName}</p>
         ${district ? `<p><strong>District / Hotspot:</strong> ${district}</p>` : ""}
         <p><strong>Risk Level:</strong> <span style="color: #dc2626; font-weight: bold;">${riskLevel}</span></p>
         <p><strong>Prediction Confidence:</strong> ${Math.round(confidenceScore * 100)}%</p>

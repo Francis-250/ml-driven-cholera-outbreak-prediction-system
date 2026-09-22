@@ -28,7 +28,7 @@ export default async function AdminRecordsPage() {
     riskLevel: r.riskLevel,
     confidenceScore: Math.round(r.confidenceScore * 100),
     validationStatus: r.validationStatus,
-    caseType: r.caseType ?? "COMMUNITY_REPORT",
+    caseType: r.caseType ?? "FIELD_REPORT",
     symptomsText: r.symptomsText,
     validationNotes: r.validationNotes,
     reporterEmail: r.user?.email || "Unknown",
@@ -45,7 +45,7 @@ export default async function AdminRecordsPage() {
         <AdminPageHeader
           eyebrow="Registry Management"
           title="Manage Disease Records"
-          description="Oversight of all clinically reported and community-submitted cholera disease cases."
+          description="Oversight of all clinically reported and field-submitted cholera disease cases."
         />
         <Button asChild variant="outline" size="sm" className="gap-1.5 shrink-0 text-xs">
           <Link href="/admin/reports">

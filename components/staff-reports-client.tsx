@@ -43,7 +43,7 @@ type EnvItem = {
   date: string;
 };
 
-export function DoctorReportsClient({
+export function StaffReportsClient({
   cases,
   environmental,
 }: {

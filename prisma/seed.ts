@@ -33,17 +33,6 @@ const users = {
     image:
       "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=256&q=80",
   },
-  doctor: {
-    id: "seed-doctor",
-    name: "Dr. Daniel Carter",
-    email: "doctor@cholerapredict.test",
-    phoneNumber: "+250788000004",
-    username: "doctor",
-    displayUsername: "Dr. Carter",
-    role: "staff",
-    image:
-      "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=256&q=80",
-  },
 } as const;
 
 async function upsertUser(user: (typeof users)[keyof typeof users]) {
@@ -103,16 +92,15 @@ async function upsertCredential(userId: string, hashedPassword: string) {
 
 async function main() {
   const hashedPassword = await hashPassword(password);
-  const [admin, staff, doctor] = await Promise.all([
+  const [admin, staff] = await Promise.all([
     upsertUser(users.admin),
     upsertUser(users.staff),
-    upsertUser(users.doctor),
   ]);
 
-  // Migrate any lingering legacy roles in database to staff
+  // Ensure all existing users in the database strictly have valid roles (admin or staff)
   await prisma.user.updateMany({
     where: {
-      role: { in: ["doctor", "community", "patient"] },
+      role: { notIn: ["admin", "staff"] },
     },
     data: {
       role: "staff",
@@ -122,8 +110,7 @@ async function main() {
   await Promise.all([
     upsertCredential(admin.id, hashedPassword),
     upsertCredential(staff.id, hashedPassword),
-    upsertCredential(doctor.id, hashedPassword),
-    prisma.doctorProfile.upsert({
+    prisma.staffProfile.upsert({
       where: { userId: staff.id },
       create: {
         userId: staff.id,
@@ -139,28 +126,6 @@ async function main() {
         specialization: "Epidemiological Surveillance & Outbreak Response",
         hospitalName: "National Epidemic Response Center",
         licenseNumber: "RMC-EPID-2026-001",
-        isVerified: true,
-        verifiedAt: new Date(),
-        isApprovedByAdmin: true,
-        approvedByAdminAt: new Date(),
-      },
-    }),
-    prisma.doctorProfile.upsert({
-      where: { userId: doctor.id },
-      create: {
-        userId: doctor.id,
-        specialization: "Infectious Diseases & Epidemiology",
-        hospitalName: "National Epidemic Response Center",
-        licenseNumber: "RMC-EPID-2026-002",
-        isVerified: true,
-        verifiedAt: new Date(),
-        isApprovedByAdmin: true,
-        approvedByAdminAt: new Date(),
-      },
-      update: {
-        specialization: "Infectious Diseases & Epidemiology",
-        hospitalName: "National Epidemic Response Center",
-        licenseNumber: "RMC-EPID-2026-002",
         isVerified: true,
         verifiedAt: new Date(),
         isApprovedByAdmin: true,
@@ -187,12 +152,12 @@ async function main() {
       outbreakRiskScore: 88.0,
       riskLevel: "HIGH" as const,
       notes: "Severe fecal coliform contamination post-heavy rains. Unsafe for drinking.",
-      uploadedByUserId: doctor.id,
+      uploadedByUserId: staff.id,
     },
     {
       id: "env-kicukiro-1",
       district: "Kicukiro",
-      location: "Gahanga Community Well",
+      location: "Gahanga Surveillance Well",
       waterSource: "Shallow Well",
       waterContaminationLevel: "HIGH",
       chlorineResidual: 0.12,
@@ -205,7 +170,7 @@ async function main() {
       outbreakRiskScore: 68.0,
       riskLevel: "MEDIUM" as const,
       notes: "Inadequate chlorine residual. Water distribution point requires chlorination tablets.",
-      uploadedByUserId: doctor.id,
+      uploadedByUserId: staff.id,
     },
     {
       id: "env-nyarugenge-1",
@@ -265,7 +230,7 @@ async function main() {
       waterSource: "Shallow Well",
       stoolType: "Rice-water watery stool",
       dehydrationLevel: "SEVERE" as const,
-      caseType: "COMMUNITY_REPORT" as const,
+      caseType: "CLINICAL_CASE" as const,
       validationStatus: "VALIDATED" as const,
       validatedById: staff.id,
       validatedAt: new Date(),
@@ -281,7 +246,7 @@ async function main() {
       aiResponse: "Patient exhibits pathognomonic presentation of severe Vibrio cholerae infection with life-threatening hypovolemic shock hazard. Immediate IV fluid resuscitation with Ringer's Lactate (100ml/kg) required alongside Cholera Treatment Unit admission.",
       recommendation: "EMERGENCY: Immediate admission to Cholera Treatment Center. Administer IV Ringer's Lactate and oral zinc. Notify District Epidemiological Surveillance.",
       status: "REVIEWED" as const,
-      reviewedByDoctor: true,
+      reviewedByStaff: true,
       reviewedAt: new Date(),
     },
     {
@@ -294,7 +259,7 @@ async function main() {
       waterSource: "Untreated Well",
       stoolType: "Loose watery stool",
       dehydrationLevel: "SOME" as const,
-      caseType: "COMMUNITY_REPORT" as const,
+      caseType: "CLINICAL_CASE" as const,
       validationStatus: "PENDING" as const,
       symptoms: ["watery_diarrhea", "vomiting", "excessive_thirst"],
       symptomsText: "Had 5 episodes of loose watery stools in the last 8 hours with mild vomiting. Feeling thirsty and weak.",
@@ -307,7 +272,7 @@ async function main() {
       aiResponse: "Symptoms indicate moderate dehydration secondary to suspected acute watery diarrhea. Immediate supervised Oral Rehydration Therapy (ORS) is required to prevent progression to severe shock.",
       recommendation: "Begin ORS solution immediately (75ml/kg over 4 hours). Present at local clinic for clinical observation.",
       status: "COMPLETED" as const,
-      reviewedByDoctor: false,
+      reviewedByStaff: false,
     },
     {
       id: "case-003",
@@ -319,7 +284,7 @@ async function main() {
       waterSource: "Municipal Tap",
       stoolType: "Soft stool",
       dehydrationLevel: "NONE" as const,
-      caseType: "COMMUNITY_REPORT" as const,
+      caseType: "CLINICAL_CASE" as const,
       validationStatus: "VALIDATED" as const,
       validatedById: staff.id,
       validatedAt: new Date(),
@@ -335,7 +300,7 @@ async function main() {
       aiResponse: "Low risk of cholera. No signs of dehydration, absence of profuse watery diarrhea. Maintain hydration with clean water.",
       recommendation: "Drink clean boiled water. Continue normal diet and practice strict hand hygiene.",
       status: "REVIEWED" as const,
-      reviewedByDoctor: true,
+      reviewedByStaff: true,
       reviewedAt: new Date(),
     },
   ];

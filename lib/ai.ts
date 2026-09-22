@@ -33,7 +33,7 @@ const CHOLERA_SYSTEM_PROMPT = `You are ML-DRIVEN CHOLERA OUTBREAK PREDICTION & C
 Your focus is exclusively on Vibrio cholerae outbreak risk forecasting, clinical symptom analysis, dehydration severity triage, and epidemic containment.
 
 Your role is to:
-- Analyze acute cholera symptoms reported by community users or clinicians
+- Analyze acute cholera symptoms reported by surveillance staff
 - Assess dehydration severity according to World Health Organization (WHO) Cholera Guidelines (None, Some, Severe)
 - Factor in environmental hazards (contaminated water sources, lack of residual chlorine, floodwaters, poor sanitation)
 - Classify outbreak risk levels: LOW RISK, MEDIUM RISK, or HIGH RISK
@@ -331,7 +331,7 @@ export function calculateEnvironmentalOutbreakRisk(params: {
 
   const alertMessage =
     riskLevel === "HIGH"
-      ? "CRITICAL OUTBREAK HAZARD: Elevated water contamination and environmental vulnerability detected. Issue community boil-water advisory and mobilize chlorination teams immediately."
+      ? "CRITICAL OUTBREAK HAZARD: Elevated water contamination and environmental vulnerability detected. Issue public boil-water advisory and mobilize chlorination teams immediately."
       : riskLevel === "MEDIUM"
         ? "MODERATE RISK: Water safety or environmental factors show heightened cholera risk. Intensify monitoring and household water treatment."
         : "LOW RISK: Environmental water safety parameters are currently within acceptable limits.";

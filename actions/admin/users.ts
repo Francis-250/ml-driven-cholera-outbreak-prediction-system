@@ -3,13 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { requireAdminAction } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
-
-const allowedRoles = new Set(["staff", "admin", "doctor", "community", "community_user", "patient"]);
+import { isValidRole } from "@/lib/roles";
 
 export async function setUserRole(userId: string, role: string) {
   const session = await requireAdminAction();
   const normalized = role.toLowerCase();
-  if (!allowedRoles.has(normalized)) throw new Error("Invalid role.");
+  if (!isValidRole(normalized)) {
+    throw new Error("Invalid role. Permitted roles are: admin, staff.");
+  }
   if (userId === session.user.id) throw new Error("You cannot change your own role.");
 
   await prisma.$transaction([
