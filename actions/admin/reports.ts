@@ -94,7 +94,7 @@ export async function exportEnvironmentalDataCSV() {
     "Flood Risk",
     "Outbreak Risk Score",
     "Risk Level",
-    "Clinician",
+    "Staff",
   ];
 
   const rows = data.map((d) => [

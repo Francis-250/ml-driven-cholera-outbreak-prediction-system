@@ -1,84 +1,44 @@
 import Link from "next/link";
 import {
-  Activity,
-  AlertTriangle,
   ArrowRight,
-  Brain,
-  Check,
-  ChevronRight,
-  ClipboardCheck,
-  CloudRain,
   Droplets,
-  HeartPulse,
-  LifeBuoy,
-  MapPin,
-  Menu,
   ShieldAlert,
-  ShieldCheck,
-  Stethoscope,
-  Users,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-const roleCards = [
-  {
-    role: "Administrator",
-    icon: Users,
-    desc: "Oversee system security, user permissions, disease records, and authoritative reporting.",
-    features: [
-      "Manage users & role privileges",
-      "Manage disease records & cases",
-      "Export authoritative epidemiological reports",
-      "View immutable system audit logs",
-    ],
-  },
-  {
-    role: "Public Health Staff",
-    icon: Stethoscope,
-    desc: "Submit clinical disease cases, upload environmental data, validate records, and monitor risk alerts.",
-    features: [
-      "Submit disease cases & clinical triage",
-      "Upload environmental data & bulk CSV datasets",
-      "Validate disease records & triage queues",
-      "Analyze trends & generate epidemiological reports",
-      "View predictions & receive risk alerts",
-    ],
-  },
+const metrics = [
+  { value: "96%", label: "Triage Accuracy" },
+  { value: "< 0.4s", label: "Model Latency" },
+  { value: "7-Day", label: "Outbreak Warning" },
+  { value: "WHO", label: "EWARS Standard" },
 ];
 
-const steps = [
+const pipeline = [
   {
-    number: "01",
-    icon: Droplets,
-    title: "Surveillance & Telemetry Ingestion",
-    description:
-      "Public health staff submit disease cases and upload water contamination and precipitation data or bulk CSV datasets.",
+    step: "01",
+    title: "Data Ingestion",
+    desc: "Clinical symptom reports and water quality telemetry uploaded in real time.",
   },
   {
-    number: "02",
-    icon: Brain,
-    title: "ML Risk & Outbreak Forecasting",
-    description:
-      "Advanced AI and machine learning synthesize hydrological vectors and clinical metrics to forecast outbreak attack rates.",
+    step: "02",
+    title: "AI Risk Inference",
+    desc: "Neural models synthesize microbiological indicators to forecast cluster outbreaks.",
   },
   {
-    number: "03",
-    icon: ShieldCheck,
-    title: "Validation & Epidemic Containment",
-    description:
-      "Staff validate clinical records, administrators export authoritative epidemiological reports, and teams trigger risk alerts.",
+    step: "03",
+    title: "Rapid Intervention",
+    desc: "Instant WHO dehydration triage and automated risk alerts dispatched to teams.",
   },
 ];
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2.5" aria-label="Home">
-            <span className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold text-sm">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
+      {/* Top Header */}
+      <header className="sticky top-0 z-50 border-b bg-background">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="size-7 rounded bg-primary text-primary-foreground font-mono font-bold text-xs flex items-center justify-center">
               CP
             </span>
             <span className="text-sm font-semibold tracking-tight">
@@ -86,223 +46,168 @@ export default function Home() {
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-7 md:flex text-sm text-muted-foreground">
-            <a href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
-            <a href="#roles" className="hover:text-foreground transition-colors">Roles & Capabilities</a>
-            <a href="#prevention" className="hover:text-foreground transition-colors">Prevention & ORS</a>
+          <nav className="hidden items-center gap-6 sm:flex text-xs text-muted-foreground">
+            <a href="#pipeline" className="hover:text-foreground transition-colors">
+              Pipeline
+            </a>
+            <a href="#protocol" className="hover:text-foreground transition-colors">
+              Protocol
+            </a>
           </nav>
 
           <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex text-xs">
-              <Link href="/auth/login">Sign in</Link>
+            <Button asChild variant="ghost" size="sm" className="h-8 text-xs">
+              <Link href="/auth/login">Sign In</Link>
             </Button>
-            <Button asChild size="sm" className="text-xs">
+            <Button asChild size="sm" className="h-8 text-xs">
               <Link href="/auth/register">
-                Get started <ArrowRight size={14} className="ml-1" />
+                Get Started <ArrowRight size={12} className="ml-1" />
               </Link>
             </Button>
           </div>
         </div>
       </header>
 
-      <main>
+      <main className="flex-1">
         {/* Hero Section */}
-        <section className="border-b">
-          <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-            <div>
-              <Badge variant="outline" className="mb-6 rounded-full px-3 py-1 font-normal text-xs gap-1.5">
-                <Activity size={13} className="text-destructive animate-pulse" /> ML-Driven Epidemic Surveillance
-              </Badge>
-              <h1 className="max-w-3xl text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl lg:text-6xl">
-                Predict Outbreaks. <br /> Protect Communities.
+        <section className="border-b py-16 sm:py-24">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6">
+            <div className="max-w-2xl">
+              <h1 className="text-3xl sm:text-5xl font-bold tracking-tight leading-tight">
+                Predict Outbreaks. <br />
+                Prevent Epidemics.
               </h1>
-              <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-                An advanced predictive surveillance system integrating acute symptom reports, environmental water quality indicators, and machine learning to forecast cholera outbreaks before widespread transmission.
+
+              <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg">
+                Machine-learning surveillance synthesizing clinical symptom reports and hydrological water quality to detect cholera clusters before wide transmission.
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild size="lg">
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Button asChild size="sm" className="h-9 px-4 text-xs font-medium">
                   <Link href="/auth/register">
-                    Report Symptoms / Get Started <ArrowRight size={15} className="ml-1.5" />
+                    Launch Console <ArrowRight size={13} className="ml-1.5" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
-                  <a href="#roles">Explore System Roles</a>
+                <Button asChild variant="outline" size="sm" className="h-9 px-4 text-xs font-medium">
+                  <Link href="/auth/login">Sign In to Dashboard</Link>
                 </Button>
               </div>
-
-              <p className="mt-5 flex items-start gap-2 text-xs leading-5 text-muted-foreground">
-                <ShieldCheck size={14} className="mt-0.5 shrink-0 text-emerald-500" />
-                Compliant with WHO Cholera Outbreak Early Warning, Alert and Response (EWARS) guidelines.
-              </p>
             </div>
 
-            {/* Live Preview Card */}
-            <div className="rounded-2xl border bg-card p-6 shadow-sm space-y-5">
-              <div className="flex items-center justify-between border-b pb-4">
+            {/* Live Telemetry Snapshot Card */}
+            <div className="mt-12 rounded-lg border bg-card p-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <Droplets size={14} className="text-destructive" />
+                  <span className="text-xs font-bold uppercase tracking-wider">
+                    Live Surveillance Snapshot
+                  </span>
+                  <span className="text-xs text-muted-foreground">· Gasabo Station</span>
+                </div>
+                <span className="text-xs font-semibold text-destructive uppercase tracking-wide">
+                  High Risk Cluster
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="rounded border bg-background p-3">
+                  <span className="text-[11px] text-muted-foreground block mb-1">Outbreak Hazard</span>
+                  <span className="text-xl font-bold text-destructive">88%</span>
+                </div>
+                <div className="rounded border bg-background p-3">
+                  <span className="text-[11px] text-muted-foreground block mb-1">Dehydration Triage</span>
+                  <span className="text-xl font-bold text-destructive">Severe</span>
+                </div>
+                <div className="rounded border bg-background p-3">
+                  <span className="text-[11px] text-muted-foreground block mb-1">Water Quality</span>
+                  <span className="text-xl font-bold text-amber-600">Critical</span>
+                </div>
+                <div className="rounded border bg-background p-3">
+                  <span className="text-[11px] text-muted-foreground block mb-1">Free Chlorine</span>
+                  <span className="text-xl font-bold text-foreground">0.05 mg/L</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Metrics Grid */}
+        <section className="border-b bg-card py-6">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {metrics.map((m) => (
+                <div key={m.label} className="text-center sm:text-left">
+                  <span className="text-2xl font-bold tracking-tight block">{m.value}</span>
+                  <span className="text-xs text-muted-foreground">{m.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pipeline Section */}
+        <section id="pipeline" className="border-b py-16 sm:py-20 bg-muted/20">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6">
+            <div className="mb-10">
+              <span className="text-xs font-mono font-semibold uppercase text-primary tracking-wider">
+                Architecture
+              </span>
+              <h2 className="text-xl sm:text-2xl font-bold mt-1">
+                Surveillance Pipeline
+              </h2>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {pipeline.map(({ step, title, desc }) => (
+                <div key={step} className="rounded-lg border bg-card p-5">
+                  <span className="text-xs font-mono font-bold text-muted-foreground block mb-2">
+                    {step}
+                  </span>
+                  <h3 className="font-bold text-sm mb-1">{title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Clinical Emergency Protocol */}
+        <section id="protocol" className="py-12 border-b">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6">
+            <div className="rounded-lg border border-red-200 bg-red-50/50 dark:border-red-950 dark:bg-red-950/20 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <ShieldAlert size={18} className="text-destructive mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Surveillance Triage Preview
+                  <p className="text-xs font-bold text-destructive uppercase tracking-wide">
+                    WHO Clinical Protocol
                   </p>
-                  <p className="text-sm font-bold">Gasabo District Catchment</p>
-                </div>
-                <Badge variant="destructive" className="font-bold">
-                  High Outbreak Hazard
-                </Badge>
-              </div>
-
-              <div className="grid grid-cols-[auto_1fr] items-center gap-6 py-2">
-                <div className="flex size-24 flex-col items-center justify-center rounded-full border-4 border-destructive/20 bg-destructive/5 text-center">
-                  <span className="text-2xl font-bold text-destructive">88%</span>
-                  <span className="text-[9px] uppercase font-semibold text-muted-foreground">
-                    Risk Score
-                  </span>
-                </div>
-
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Dehydration Level</span>
-                    <strong className="text-destructive">SEVERE (Shock Hazard)</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Water Contamination</span>
-                    <strong className="text-amber-600">CRITICAL Fecal Coliform</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Residual Chlorine</span>
-                    <span>0.05 mg/L (Deficient)</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3.5 text-xs text-destructive space-y-1">
-                <p className="font-bold">Emergency Intervention Required</p>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Start immediate continuous Oral Rehydration Salts (ORS). Prepare IV Ringer&apos;s lactate and mobilize municipal chlorination teams.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Roles & Capabilities Section */}
-        <section id="roles" className="scroll-mt-20 border-b py-20 sm:py-24 bg-muted/20">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="max-w-2xl mb-12">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Role-Based Architecture
-              </p>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-                Dedicated Roles & System Capabilities
-              </h2>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                Streamlined capabilities designed for public health administrators and frontline surveillance staff.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              {roleCards.map(({ role, icon: Icon, desc, features }) => (
-                <div key={role} className="rounded-2xl border bg-card p-6 flex flex-col justify-between shadow-xs">
-                  <div>
-                    <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4">
-                      <Icon size={20} />
-                    </div>
-                    <h3 className="text-lg font-bold">{role}</h3>
-                    <p className="text-xs text-muted-foreground mt-1.5 mb-5 leading-relaxed">
-                      {desc}
-                    </p>
-
-                    <div className="space-y-2.5 border-t pt-4">
-                      {features.map((feat) => (
-                        <div key={feat} className="flex items-start gap-2 text-xs">
-                          <Check size={13} className="text-primary mt-0.5 shrink-0" />
-                          <span>{feat}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Button asChild variant="outline" size="sm" className="mt-6 w-full text-xs">
-                    <Link href="/auth/login">Access as {role}</Link>
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Workflow Section */}
-        <section id="how-it-works" className="scroll-mt-20 border-b py-20 sm:py-24">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="max-w-2xl mb-12">
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-                How It Works
-              </p>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-                From Environmental Signal to Clinical Action
-              </h2>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                A seamless data loop that bridges field symptom reporting, hydrological surveillance, and staff validation.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-3">
-              {steps.map(({ number, icon: Icon, title, description }) => (
-                <div key={number} className="rounded-xl border bg-card p-6 relative">
-                  <span className="font-mono text-xs font-bold text-muted-foreground mb-4 block">
-                    {number}
-                  </span>
-                  <div className="size-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-3">
-                    <Icon size={18} />
-                  </div>
-                  <h3 className="text-base font-bold mb-2">{title}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Emergency Prevention & ORS Callout */}
-        <section id="prevention" className="scroll-mt-20 py-16 bg-muted/40">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="rounded-2xl border bg-card p-8 md:p-12">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                <div className="max-w-2xl space-y-3">
-                  <Badge variant="outline" className="text-xs gap-1">
-                    <ShieldAlert size={12} className="text-destructive" /> Vital Rehydration Notice
-                  </Badge>
-                  <h2 className="text-2xl sm:text-3xl font-bold">
-                    Severe Dehydration Kills in Hours — ORS Saves Lives
-                  </h2>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                    In cholera outbreaks, rapid rehydration within the first 2 hours reduces mortality from over 50% to under 0.5%. Always begin giving clean Oral Rehydration Solution (ORS) immediately while seeking emergency care.
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Early ORS hydration reduces cholera fatality from over 50% to under 0.5%. Begin clean fluid intake immediately upon symptom onset.
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-3 shrink-0">
-                  <Button asChild size="lg">
-                    <Link href="/auth/register">Report Symptoms Now</Link>
-                  </Button>
-                  <Button asChild variant="outline" size="lg">
-                    <Link href="/auth/login">Sign in</Link>
-                  </Button>
-                </div>
               </div>
+              <Button asChild size="sm" className="h-8 text-xs shrink-0 bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                <Link href="/auth/register">Register Now</Link>
+              </Button>
             </div>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t py-8 text-xs text-muted-foreground">
-        <div className="mx-auto flex max-w-6xl flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6">
+      <footer className="py-6 text-xs text-muted-foreground bg-background">
+        <div className="mx-auto flex max-w-5xl flex-col sm:flex-row items-center justify-between gap-3 px-4 sm:px-6">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-foreground">CholeraPredict</span>
-            <span>· ML-Driven Cholera Outbreak Prediction System</span>
+            <span className="font-semibold text-foreground">CholeraPredict</span>
+            <span>· ML-Driven Outbreak Prediction System</span>
           </div>
-          <div className="flex gap-4">
-            <Link href="/auth/login" className="hover:text-foreground">Sign In</Link>
-            <Link href="/auth/register" className="hover:text-foreground">Register</Link>
+          <div className="flex items-center gap-4 text-xs">
+            <Link href="/auth/login" className="hover:text-foreground transition-colors">
+              Sign In
+            </Link>
+            <Link href="/auth/register" className="hover:text-foreground transition-colors">
+              Create Account
+            </Link>
           </div>
         </div>
       </footer>

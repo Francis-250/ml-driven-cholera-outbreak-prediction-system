@@ -299,7 +299,7 @@ Rwamagana,Muhazi Lake Shore,Lake Kivu / Open Water,HIGH,0.06,38,33.0,26.0,15.5,7
           outbreakRiskScore: res.riskScore,
           riskLevel: res.riskLevel,
           notes: notes || null,
-          uploader: "You (Doctor)",
+          uploader: "You (Staff)",
           date: "Just now",
         };
 
@@ -380,7 +380,7 @@ Rwamagana,Muhazi Lake Shore,Lake Kivu / Open Water,HIGH,0.06,38,33.0,26.0,15.5,7
               ? "HIGH"
               : "MEDIUM",
           notes: p.notes || "Bulk CSV Dataset Import",
-          uploader: "You (Doctor)",
+          uploader: "You (Staff)",
           date: "Just now",
         }));
 
