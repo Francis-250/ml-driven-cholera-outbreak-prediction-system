@@ -108,8 +108,8 @@ export default function StaffSubmitDiseaseCasePage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
       <div className="flex items-center gap-2 mb-6">
         <Button asChild variant="ghost" size="xs">
-          <Link href="/staff">
-            <ChevronLeft size={14} className="mr-1" /> Back to Dashboard
+          <Link href="/staff/cases">
+            <ChevronLeft size={14} className="mr-1" /> Back to Disease Cases
           </Link>
         </Button>
       </div>

@@ -110,8 +110,13 @@ export default async function StaffCasesPage({
 
         <div className="divide-y">
           {cases.length === 0 ? (
-            <div className="p-12 text-center text-xs text-muted-foreground">
-              No disease cases found matching the criteria.
+            <div className="p-12 text-center text-xs text-muted-foreground space-y-3">
+              <p>No disease cases found matching the criteria.</p>
+              <Button asChild size="sm" variant="outline">
+                <Link href="/staff/cases/new">
+                  <PlusCircle size={14} className="mr-1.5" /> Submit New Case
+                </Link>
+              </Button>
             </div>
           ) : (
             cases.map((c) => (

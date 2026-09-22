@@ -15,12 +15,14 @@ export default async function StaffLayout({
   });
 
   return (
-    <div className="h-screen overflow-hidden bg-background">
-      <StaffSidebar
-        name={session.user.name}
-        specialty={profile?.specialization ?? "Public Health Staff"}
-      />
-      <main className="h-[calc(100vh-3.5rem)] overflow-y-auto lg:ml-56 lg:h-screen">
+    <div className="h-screen overflow-hidden bg-background print:h-auto print:overflow-visible print:bg-white print:text-black">
+      <div className="print:hidden">
+        <StaffSidebar
+          name={session.user.name}
+          specialty={profile?.specialization ?? "Public Health Staff"}
+        />
+      </div>
+      <main className="h-[calc(100vh-3.5rem)] overflow-y-auto lg:ml-56 lg:h-screen print:h-auto print:overflow-visible print:ml-0 print:p-0">
         {children}
       </main>
     </div>

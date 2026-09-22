@@ -10,7 +10,6 @@ import {
   Home,
   LogOut,
   Menu,
-  PlusCircle,
   Stethoscope,
   TrendingUp,
   User,
@@ -28,7 +27,6 @@ import {
 
 const links = [
   { label: "Dashboard", href: "/staff", icon: Home },
-  { label: "Submit Disease Case", href: "/staff/cases/new", icon: PlusCircle },
   { label: "Disease Cases", href: "/staff/cases", icon: Stethoscope },
   { label: "Environmental Data", href: "/staff/environmental", icon: CloudRain },
   { label: "Validate Records", href: "/staff/validate", icon: CheckCheck },

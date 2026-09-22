@@ -243,14 +243,7 @@ export function EnvironmentalUploadClient({
   const handleDownloadTemplate = () => {
     const sampleCsv = `district,location,waterSource,waterContaminationLevel,chlorineResidual,sanitationScore,rainfallMm,temperature,turbidityNtu,phLevel,floodRisk,notes
 Gasabo,Nyabugogo River Basin,River / Stream Runoff,CRITICAL,0.02,28,45.2,26.8,18.5,7.2,true,Heavy runoff upstream; high turbidity
-Kicukiro,Gahanga Community Tap,Municipal Piped Tap,SAFE,0.35,82,12.0,24.5,2.1,7.4,false,Routine chlorination check passed
-Rubavu,Gisenyi Lake Shore,Lake Kivu / Open Water,HIGH,0.05,35,38.0,27.2,14.0,7.1,true,Unprotected washing and collection point
-Nyarugenge,Kimisagara Market Well,Protected Shallow Well,MODERATE,0.12,52,22.5,25.4,6.5,7.3,false,Chlorine booster tablets distributed
-Musanze,Muhoza Spring,River / Stream Runoff,HIGH,0.04,40,41.0,23.0,11.2,7.0,true,Surface runoff following torrential rainfall
-Rusizi,Kamembe Open Drainage,River / Stream Runoff,CRITICAL,0.01,25,52.0,28.0,22.0,6.9,true,Overflowing latrines near drainage channel
-Gatsibo,Kabarore Borehole,Protected Shallow Well,SAFE,0.28,75,8.5,24.0,3.0,7.5,false,Protected casing inspected
-Huye,Ngoma Sector Stream,River / Stream Runoff,MODERATE,0.10,48,28.0,25.1,8.0,7.2,false,Boil water notices issued to villagers
-Rwamagana,Muhazi Lake Shore,Lake Kivu / Open Water,HIGH,0.06,38,33.0,26.0,15.5,7.1,true,Informal bathing and water retrieval zone`;
+Kicukiro,Gahanga Community Tap,Municipal Piped Tap,SAFE,0.35,82,12.0,24.5,2.1,7.4,false,Routine chlorination check passed`;
 
     const blob = new Blob([sampleCsv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
