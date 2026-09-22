@@ -34,27 +34,15 @@ const roleCards = [
     ],
   },
   {
-    role: "Doctor / Clinician",
+    role: "Public Health Staff",
     icon: Stethoscope,
-    desc: "Submit clinical cases, upload environmental surveillance data, and direct interventions.",
+    desc: "Submit clinical disease cases, upload environmental data, validate records, and monitor risk alerts.",
     features: [
-      "Submit clinical disease cases",
-      "Upload environmental & water data",
-      "Validate community records",
-      "Analyze trends & generate reports",
+      "Submit disease cases & clinical triage",
+      "Upload environmental data & bulk CSV datasets",
+      "Validate disease records & triage queues",
+      "Analyze trends & generate epidemiological reports",
       "View predictions & receive risk alerts",
-    ],
-  },
-  {
-    role: "Community User",
-    icon: LifeBuoy,
-    desc: "Empower households with rapid symptom self-assessment, ORS guidance, and hazard alerts.",
-    features: [
-      "View outbreak dashboards",
-      "Provide symptoms for rapid AI triage",
-      "Analyze public statistics & trends",
-      "View local outbreak predictions",
-      "Monitor high-risk regions & hotspots",
     ],
   },
 ];
@@ -63,23 +51,23 @@ const steps = [
   {
     number: "01",
     icon: Droplets,
-    title: "Surveillance & Symptom Input",
+    title: "Surveillance & Telemetry Ingestion",
     description:
-      "Community members report symptoms; clinicians upload water contamination and precipitation data.",
+      "Public health staff submit disease cases and upload water contamination and precipitation data or bulk CSV datasets.",
   },
   {
     number: "02",
     icon: Brain,
-    title: "ML Risk & Dehydration Scoring",
+    title: "ML Risk & Outbreak Forecasting",
     description:
-      "Machine learning models synthesize hydrological vectors and clinical signs to forecast attack rates and triage dehydration.",
+      "Advanced AI and machine learning synthesize hydrological vectors and clinical metrics to forecast outbreak attack rates.",
   },
   {
     number: "03",
     icon: ShieldCheck,
-    title: "Validation & Epidemic Response",
+    title: "Validation & Epidemic Containment",
     description:
-      "Doctors validate clusters, administrators export reports, and communities receive instant life-saving rehydration protocols.",
+      "Staff validate clinical records, administrators export authoritative epidemiological reports, and teams trigger risk alerts.",
   },
 ];
 
@@ -205,14 +193,14 @@ export default function Home() {
                 Role-Based Architecture
               </p>
               <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-                Dedicated Workspaces for Every Stakeholder
+                Dedicated Roles & System Capabilities
               </h2>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-                Tailored capabilities designed for public health administrators, frontline doctors, and vulnerable communities.
+                Streamlined capabilities designed for public health administrators and frontline surveillance staff.
               </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2">
               {roleCards.map(({ role, icon: Icon, desc, features }) => (
                 <div key={role} className="rounded-2xl border bg-card p-6 flex flex-col justify-between shadow-xs">
                   <div>
@@ -235,7 +223,7 @@ export default function Home() {
                   </div>
 
                   <Button asChild variant="outline" size="sm" className="mt-6 w-full text-xs">
-                    <Link href="/auth/register">Join as {role.split(" ")[0]}</Link>
+                    <Link href="/auth/login">Access as {role}</Link>
                   </Button>
                 </div>
               ))}

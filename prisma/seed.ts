@@ -22,27 +22,27 @@ const users = {
     image:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80",
   },
+  staff: {
+    id: "seed-staff",
+    name: "Daniel Carter",
+    email: "staff@cholerapredict.test",
+    phoneNumber: "+250788000002",
+    username: "staff",
+    displayUsername: "Public Health Staff Daniel",
+    role: "staff",
+    image:
+      "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=256&q=80",
+  },
   doctor: {
     id: "seed-doctor",
     name: "Dr. Daniel Carter",
     email: "doctor@cholerapredict.test",
-    phoneNumber: "+250788000002",
+    phoneNumber: "+250788000004",
     username: "doctor",
     displayUsername: "Dr. Carter",
-    role: "doctor",
+    role: "staff",
     image:
       "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=256&q=80",
-  },
-  community: {
-    id: "seed-community",
-    name: "Maya Thompson",
-    email: "community@cholerapredict.test",
-    phoneNumber: "+250788000003",
-    username: "community",
-    displayUsername: "Maya",
-    role: "community",
-    image:
-      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=256&q=80",
   },
 } as const;
 
@@ -103,21 +103,31 @@ async function upsertCredential(userId: string, hashedPassword: string) {
 
 async function main() {
   const hashedPassword = await hashPassword(password);
-  const [admin, doctor, community] = await Promise.all([
+  const [admin, staff, doctor] = await Promise.all([
     upsertUser(users.admin),
+    upsertUser(users.staff),
     upsertUser(users.doctor),
-    upsertUser(users.community),
   ]);
+
+  // Migrate any lingering legacy roles in database to staff
+  await prisma.user.updateMany({
+    where: {
+      role: { in: ["doctor", "community", "patient"] },
+    },
+    data: {
+      role: "staff",
+    },
+  });
 
   await Promise.all([
     upsertCredential(admin.id, hashedPassword),
+    upsertCredential(staff.id, hashedPassword),
     upsertCredential(doctor.id, hashedPassword),
-    upsertCredential(community.id, hashedPassword),
     prisma.doctorProfile.upsert({
-      where: { userId: doctor.id },
+      where: { userId: staff.id },
       create: {
-        userId: doctor.id,
-        specialization: "Infectious Diseases & Epidemiology",
+        userId: staff.id,
+        specialization: "Epidemiological Surveillance & Outbreak Response",
         hospitalName: "National Epidemic Response Center",
         licenseNumber: "RMC-EPID-2026-001",
         isVerified: true,
@@ -126,7 +136,7 @@ async function main() {
         approvedByAdminAt: new Date(),
       },
       update: {
-        specialization: "Infectious Diseases & Epidemiology",
+        specialization: "Epidemiological Surveillance & Outbreak Response",
         hospitalName: "National Epidemic Response Center",
         licenseNumber: "RMC-EPID-2026-001",
         isVerified: true,
@@ -135,23 +145,26 @@ async function main() {
         approvedByAdminAt: new Date(),
       },
     }),
-    prisma.communityProfile.upsert({
-      where: { userId: community.id },
+    prisma.doctorProfile.upsert({
+      where: { userId: doctor.id },
       create: {
-        userId: community.id,
-        age: 34,
-        gender: "Female",
-        district: "Gasabo",
-        sector: "Kimironko",
-        cell: "Kibagabaga",
-        primaryWaterSource: "Municipal Tap",
-        householdSize: 5,
-        existingConditions: "None",
+        userId: doctor.id,
+        specialization: "Infectious Diseases & Epidemiology",
+        hospitalName: "National Epidemic Response Center",
+        licenseNumber: "RMC-EPID-2026-002",
+        isVerified: true,
+        verifiedAt: new Date(),
+        isApprovedByAdmin: true,
+        approvedByAdminAt: new Date(),
       },
       update: {
-        district: "Gasabo",
-        primaryWaterSource: "Municipal Tap",
-        householdSize: 5,
+        specialization: "Infectious Diseases & Epidemiology",
+        hospitalName: "National Epidemic Response Center",
+        licenseNumber: "RMC-EPID-2026-002",
+        isVerified: true,
+        verifiedAt: new Date(),
+        isApprovedByAdmin: true,
+        approvedByAdminAt: new Date(),
       },
     }),
   ]);
@@ -210,7 +223,7 @@ async function main() {
       outbreakRiskScore: 15.0,
       riskLevel: "LOW" as const,
       notes: "Adequate residual chlorination. Safe for public consumption.",
-      uploadedByUserId: doctor.id,
+      uploadedByUserId: staff.id,
     },
     {
       id: "env-rubavu-1",
@@ -228,7 +241,7 @@ async function main() {
       outbreakRiskScore: 76.0,
       riskLevel: "HIGH" as const,
       notes: "Cross-border trading point with elevated transmission risk.",
-      uploadedByUserId: doctor.id,
+      uploadedByUserId: staff.id,
     },
   ];
 
@@ -244,7 +257,7 @@ async function main() {
   const sampleCases = [
     {
       id: "case-001",
-      userId: community.id,
+      userId: staff.id,
       patientName: "Maya Thompson",
       patientAge: 34,
       patientGender: "Female",
@@ -254,7 +267,7 @@ async function main() {
       dehydrationLevel: "SEVERE" as const,
       caseType: "COMMUNITY_REPORT" as const,
       validationStatus: "VALIDATED" as const,
-      validatedById: doctor.id,
+      validatedById: staff.id,
       validatedAt: new Date(),
       validationNotes: "Classic acute watery diarrhea with severe dehydration signs. IV Ringer's Lactate and CTC isolation initiated.",
       symptoms: ["watery_diarrhea", "vomiting", "sunken_eyes", "muscle_cramps", "rapid_weak_pulse", "excessive_thirst"],
@@ -273,7 +286,7 @@ async function main() {
     },
     {
       id: "case-002",
-      userId: community.id,
+      userId: staff.id,
       patientName: "Jean-Pierre Mugabo",
       patientAge: 28,
       patientGender: "Male",
@@ -298,7 +311,7 @@ async function main() {
     },
     {
       id: "case-003",
-      userId: community.id,
+      userId: staff.id,
       patientName: "Amina Uwase",
       patientAge: 19,
       patientGender: "Female",
@@ -308,7 +321,7 @@ async function main() {
       dehydrationLevel: "NONE" as const,
       caseType: "COMMUNITY_REPORT" as const,
       validationStatus: "VALIDATED" as const,
-      validatedById: doctor.id,
+      validatedById: staff.id,
       validatedAt: new Date(),
       validationNotes: "Non-cholera gastroenteritis. Vital signs normal, patient hydrated.",
       symptoms: ["mild_diarrhea", "nausea"],
@@ -338,8 +351,7 @@ async function main() {
   console.log("Seeded ML-Driven Cholera Outbreak Prediction System accounts:");
   console.table([
     { role: "admin", email: admin.email, password },
-    { role: "doctor", email: doctor.email, password },
-    { role: "community", email: community.email, password },
+    { role: "staff", email: staff.email, password },
   ]);
 }
 

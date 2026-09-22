@@ -10,15 +10,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { User, Stethoscope } from "lucide-react";
-import { accountFlow } from "@/lib/account-flow-client";
+import {
+  AlertTriangle,
+  CheckCheck,
+  CloudRain,
+  FileDown,
+  PlusCircle,
+  ShieldCheck,
+  TrendingUp,
+} from "lucide-react";
 
 export default function Register() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<"community" | "doctor" | null>(
-    null,
-  );
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -48,15 +52,6 @@ export default function Register() {
 
     try {
       const verificationEmail = email.trim().toLowerCase();
-      const doctorIntent =
-        selectedRole === "doctor"
-          ? (
-              await accountFlow<{ token: string }>({
-                operation: "create-doctor-intent",
-                email: verificationEmail,
-              })
-            ).token
-          : null;
       const { data, error } = await authClient.signUp.email({
         email: verificationEmail,
         password,
@@ -71,20 +66,10 @@ export default function Register() {
       }
 
       if (data) {
-        if (doctorIntent) {
-          await accountFlow({
-            operation: "start-doctor-registration",
-            email: verificationEmail,
-            token: doctorIntent,
-          });
-        }
         sessionStorage.setItem("verifyEmail", verificationEmail);
-        sessionStorage.setItem("registrationRole", selectedRole ?? "community");
-        if (doctorIntent) {
-          sessionStorage.setItem("doctorRegistrationIntent", doctorIntent);
-        } else {
-          sessionStorage.removeItem("doctorRegistrationIntent");
-        }
+        sessionStorage.setItem("registrationRole", "staff");
+        sessionStorage.removeItem("doctorRegistrationIntent");
+
         const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
           email: verificationEmail,
           type: "email-verification",
@@ -99,145 +84,97 @@ export default function Register() {
           return;
         }
 
-        toast.success(`Verification code sent to ${verificationEmail}`);
+        toast.success("Verification code sent to your email");
         router.push("/auth/verify-otp");
       }
-    } catch (error) {
-      console.error("Registration error:", error);
-      toast.error("Something went wrong. Please try again.");
+    } catch {
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignUp = async () => {
-    if (selectedRole === "doctor") {
-      toast.error(
-        "Doctor registration requires email and password so credentials can be submitted for approval.",
-      );
-      return;
-    }
-
     try {
-      const { error } = await authClient.signIn.social({
+      await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/auth/callback",
+        callbackURL: "/staff",
       });
-
-      if (error) {
-        toast.error(error.message);
-      }
     } catch {
-      toast.error("Something went wrong");
+      toast.error("Google sign up failed");
     }
   };
-
-  if (!selectedRole) {
-    return (
-      <main className="flex min-h-screen items-center justify-center px-4 py-12">
-        <div className="w-full max-w-4xl">
-          <div className="mb-12 text-center">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
-              ML-Driven Cholera Outbreak Prediction System
-            </p>
-            <h1 className="text-4xl font-semibold tracking-tight mb-4">
-              Create an account
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Choose your role to get started
-            </p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <button
-              onClick={() => setSelectedRole("community")}
-              className="flex flex-col items-center gap-4 rounded-lg border p-8 text-center transition-all hover:border-foreground hover:bg-accent"
-            >
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <User className="h-8 w-8" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold">Community User</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Provide symptoms, view outbreak dashboards & predictions, monitor high-risk regions
-                </p>
-              </div>
-            </button>
-
-            <button
-              onClick={() => setSelectedRole("doctor")}
-              className="flex flex-col items-center gap-4 rounded-lg border p-8 text-center transition-all hover:border-foreground hover:bg-accent"
-            >
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Stethoscope className="h-8 w-8" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold">Doctor / Clinician</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Submit disease cases, upload environmental data, validate records, analyze trends
-                </p>
-              </div>
-            </button>
-          </div>
-
-          <div className="mt-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link
-                href="/auth/login"
-                className="font-medium text-foreground underline underline-offset-4"
-              >
-                Sign in
-              </Link>
-            </p>
-          </div>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
       <div className="w-full max-w-5xl">
-        <button
-          onClick={() => setSelectedRole(null)}
-          className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          ← Back to role selection
-        </button>
-
         <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
-          {/* Left */}
+          {/* Left Column: Staff Overview */}
           <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
-              ML-Driven Cholera Outbreak Prediction System
-            </p>
-            <h1 className="text-4xl font-semibold tracking-tight leading-tight mb-4">
-              {selectedRole === "community"
-                ? "Community User Registration"
-                : "Doctor Registration"}
+            <div className="inline-flex items-center gap-2 rounded-full border bg-muted/40 px-3 py-1 text-xs text-muted-foreground mb-4">
+              <ShieldCheck size={13} className="text-primary" />
+              <span>Epidemic Surveillance Unit</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight leading-tight mb-4">
+              Healthcare Staff Registration
             </h1>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Fill in your details below to create your account and participate in
-              early disease detection, outbreak risk forecasting, and community health protection.
+            <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+              Create your authorized staff account to participate in national
+              cholera surveillance, record water telemetry, validate clinical cases,
+              and receive real-time predictive outbreak warnings.
             </p>
+
+            <div className="space-y-3 rounded-xl border bg-card p-5 text-xs">
+              <p className="font-semibold text-foreground uppercase tracking-wider text-[11px]">
+                Staff Capabilities & Responsibilities:
+              </p>
+              <div className="grid gap-2 text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <PlusCircle size={14} className="text-primary shrink-0" />
+                  <span>Submit confirmed & suspect cholera disease cases</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CloudRain size={14} className="text-blue-500 shrink-0" />
+                  <span>Upload environmental water telemetry & batch CSV datasets</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCheck size={14} className="text-amber-500 shrink-0" />
+                  <span>Validate suspect records & clinical dehydration grades</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <TrendingUp size={14} className="text-emerald-500 shrink-0" />
+                  <span>Analyze epidemiological curves & transmission dynamics</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <FileDown size={14} className="text-purple-500 shrink-0" />
+                  <span>Generate and export clinical outbreak surveillance reports</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <AlertTriangle size={14} className="text-red-500 shrink-0" />
+                  <span>Access ML outbreak predictions & receive critical risk alerts</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Right */}
-          <div className="w-full rounded-lg border p-8">
-            <h2 className="text-xl font-semibold tracking-tight mb-6">
-              {selectedRole === "community" ? "Community User" : "Doctor"} Information
+          {/* Right Column: Registration Form */}
+          <div className="w-full rounded-xl border bg-card p-8 shadow-xs">
+            <h2 className="text-xl font-semibold tracking-tight mb-1">
+              Create Staff Account
             </h2>
+            <p className="text-xs text-muted-foreground mb-6">
+              Enter your professional credentials to get started
+            </p>
 
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="name" className="text-xs">
-                  Full name
+                  Full name *
                 </Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="Dr. / Officer Full Name"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -247,12 +184,12 @@ export default function Register() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="email" className="text-xs">
-                  Email address
+                  Official email address *
                 </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder="staff@hospital.gov / name@domain.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -262,7 +199,7 @@ export default function Register() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="password" className="text-xs">
-                  Password
+                  Password *
                 </Label>
                 <Input
                   id="password"
@@ -273,14 +210,14 @@ export default function Register() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-9 text-sm"
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[11px] text-muted-foreground">
                   Must be at least 8 characters
                 </p>
               </div>
 
               <div className="space-y-1.5">
                 <Label htmlFor="confirmPassword" className="text-xs">
-                  Confirm password
+                  Confirm password *
                 </Label>
                 <Input
                   id="confirmPassword"
@@ -301,71 +238,77 @@ export default function Register() {
                 />
                 <Label
                   htmlFor="terms"
-                  className="text-xs text-muted-foreground cursor-pointer font-normal"
+                  className="text-xs text-muted-foreground cursor-pointer"
                 >
                   I agree to the{" "}
-                  <a
-                    href="#"
+                  <Link
+                    href="/terms"
                     className="text-foreground underline underline-offset-4"
                   >
-                    Terms & Conditions
-                  </a>
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="/privacy"
+                    className="text-foreground underline underline-offset-4"
+                  >
+                    Privacy Policy
+                  </Link>
                 </Label>
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <span className="h-3.5 w-3.5 rounded-full border-2 border-background/40 border-t-background animate-spin" />
-                ) : (
-                  `Create ${selectedRole === "community" ? "Community User" : "Doctor"} Account`
-                )}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading || !termsAccepted}
+              >
+                {loading ? "Creating account..." : "Register as Staff"}
               </Button>
             </form>
 
-            <div className="my-6 flex items-center gap-3">
-              <Separator className="flex-1" />
-              <span className="text-xs text-muted-foreground">or</span>
-              <Separator className="flex-1" />
+            <div className="relative my-6">
+              <Separator />
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+                or continue with
+              </span>
             </div>
 
             <Button
               variant="outline"
-              className="w-full text-sm"
+              type="button"
+              className="w-full gap-2"
               onClick={handleGoogleSignUp}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="size-4 mr-2"
-                viewBox="0 0 512 512"
-                aria-hidden="true"
-              >
+              <svg className="h-4 w-4" viewBox="0 0 24 24">
                 <path
-                  fill="#fbbd00"
-                  d="M120 256c0-25.367 6.989-49.13 19.131-69.477v-86.308H52.823C18.568 144.703 0 198.922 0 256s18.568 111.297 52.823 155.785h86.308v-86.308C126.989 305.13 120 281.367 120 256z"
+                  fill="currentColor"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                 />
                 <path
-                  fill="#0f9d58"
-                  d="m256 392-60 60 60 60c57.079 0 111.297-18.568 155.785-52.823v-86.216h-86.216C305.044 385.147 281.181 392 256 392z"
+                  fill="currentColor"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
                 />
                 <path
-                  fill="#31aa52"
-                  d="m139.131 325.477-86.308 86.308a260.085 260.085 0 0 0 22.158 25.235C123.333 485.371 187.62 512 256 512V392c-49.624 0-93.117-26.72-116.869-66.523z"
+                  fill="currentColor"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
                 />
                 <path
-                  fill="#3c79e6"
-                  d="M512 256a258.24 258.24 0 0 0-4.192-46.377l-2.251-12.299H256v120h121.452a135.385 135.385 0 0 1-51.884 55.638l86.216 86.216a260.085 260.085 0 0 0 25.235-22.158C485.371 388.667 512 324.38 512 256z"
-                />
-                <path
-                  fill="#cf2d48"
-                  d="m352.167 159.833 10.606 10.606 84.853-84.852-10.606-10.606C388.668 26.629 324.381 0 256 0l-60 60 60 60c36.326 0 70.479 14.146 96.167 39.833z"
-                />
-                <path
-                  fill="#eb4132"
-                  d="M256 120V0C187.62 0 123.333 26.629 74.98 74.98a259.849 259.849 0 0 0-22.158 25.235l86.308 86.308C162.883 146.72 206.376 120 256 120z"
+                  fill="currentColor"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                 />
               </svg>
-              Continue with Google
+              Google
             </Button>
+
+            <div className="mt-6 text-center text-xs text-muted-foreground">
+              Already registered?{" "}
+              <Link
+                href="/auth/login"
+                className="font-medium text-foreground underline underline-offset-4"
+              >
+                Sign in
+              </Link>
+            </div>
           </div>
         </div>
       </div>

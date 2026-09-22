@@ -9,7 +9,7 @@ import {
   username,
 } from "better-auth/plugins";
 
-import { ac, admin, doctor, community, patient } from "./permission";
+import { ac, admin, staff, doctor, community, patient } from "./permission";
 import { nextCookies } from "better-auth/next-js";
 import { sendEmail, sendEmailOrThrow } from "./brevo";
 
@@ -38,9 +38,9 @@ export const auth = betterAuth({
   appName: "ML-Driven Cholera Outbreak Prediction System",
   plugins: [
     adminPlugin({
-      defaultRole: "community",
+      defaultRole: "staff",
       ac,
-      roles: { admin, doctor, community, patient },
+      roles: { admin, staff, doctor, community, patient },
     }),
     phoneNumber(),
     username(),

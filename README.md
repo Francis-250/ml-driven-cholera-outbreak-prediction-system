@@ -30,28 +30,28 @@ The system combines patient symptom reporting with real-time environmental water
 
 ## Role-Based Capabilities
 
-### 1. Administrator
-* **Manage Users**: Review registered users, assign roles (`community`, `doctor`, `admin`), ban/unban accounts, and manage account access (`/admin/users`).
-* **Manage Disease Records**: Centralized surveillance database to filter records by district, validation status, and cholera risk tier; edit or prune records (`/admin/records`).
+The system features two primary operational roles with dedicated workspaces:
+
+### 1. Administrator (`admin`)
+* **Manage Users**: Review registered users, assign roles (`admin` or `staff`), ban/unban accounts, and configure permissions (`/admin/users`).
+* **Manage Disease Records**: Centralized surveillance database to filter clinical cases by district, validation status, and cholera risk tier; edit or prune records (`/admin/records`).
 * **Export Reports**: Generate and export timestamped CSV datasets for:
   - Disease Cases & Clinical Outcomes
   - Environmental Telemetry & Water Contamination
   - System Security & Operational Audit Logs (`/admin/reports`)
 * **View Audit Logs**: Comprehensive surveillance event log monitoring logins, case submissions, medical validations, and outbreak alerts (`/admin/audit`).
 
-### 2. Doctor / Epidemiologist
-* **Submit Disease Cases**: Register confirmed or suspected cholera patients with clinical metrics, stool consistency, dehydration grade, and suspected contaminated water sources (`/doctor/cases/new`).
-* **Upload Environmental Data**: Input water quality lab results, residual chlorine levels, precipitation, and sanitation scores across surveillance stations (`/doctor/environmental`).
-* **Validate Records**: Clinical triage review queue to review community self-reports, confirm or reject suspected cases, and attach clinical guidance (`/doctor/validate`).
-* **Analyze Trends & Generate Reports**: Interactive epidemiological curves, weekly attack rates, and district risk heatmaps; export clinical outbreak summaries (`/doctor/trends` & `/doctor/reports`).
-* **View Predictions & Receive Risk Alerts**: Outbreak probability forecasting powered by `openai/gpt-oss-120b`, displaying priority containment zones and immediate risk alerts (`/doctor/predictions`).
+### 2. Public Health Staff (`staff`)
+* **Submit Disease Cases**: Register confirmed or suspected cholera patients with clinical signs (rice-water stool, dehydration grade, vomiting), symptoms, and suspected contaminated water sources (`/staff/cases/new`).
+* **Upload Environmental Data & Datasets**: 
+  - Direct form submission for water quality metrics across surveillance stations (`/staff/environmental`).
+  - **Bulk CSV Ingestion**: Upload complete historical or batch telemetry datasets via CSV.
+* **Validate Records**: Clinical triage review queue to review triage submissions, confirm or reject suspected cases, and attach clinical interventions (`/staff/validate`).
+* **Analyze Trends**: Interactive epidemiological curves, weekly attack rates, and district risk heatmaps (`/staff/trends`).
+* **Generate Reports**: Filter by district or time range and export comprehensive clinical outbreak summaries in CSV format (`/staff/reports`).
+* **View Predictions & Receive Risk Alerts**: 7-day predictive district outbreak forecasting powered by `openai/gpt-oss-120b`, displaying priority containment zones and immediate risk alerts (`/staff/predictions`).
 
-### 3. Community User
-* **View Dashboards**: District-specific epidemic warning levels, clean water directives, and emergency hotline access (`/community`).
-* **Provide Symptoms**: Interactive symptom assessment form that triages dehydration signs, calculates risk, and guides users on immediate home ORS preparation while notifying local clinics (`/community/symptoms`).
-* **Analyze Statistics**: Public health transparency graphs displaying local case counts, attack rate trends, and water safety benchmarks (`/community/statistics`).
-* **View Predictions**: 7-day outbreak forecast for the user's district with preventive advisories (`/community/predictions`).
-* **Monitor High-Risk Regions**: Live regional hotspot maps with active boil-water and chlorinated water collection alerts (`/community/hotspots`).
+> **Note on Legacy Routes**: Existing endpoints (`/doctor/*`, `/community/*`, and `/patient/*`) are backwards-compatible and automatically redirect to their respective `/staff/*` destinations.
 
 ---
 
@@ -59,11 +59,25 @@ The system combines patient symptom reporting with real-time environmental water
 
 The database comes pre-seeded with test accounts for each role:
 
-| Role | Email | Password | Default Landing Page |
+| Role | Email | Password | Default Workspace |
 |---|---|---|---|
 | **Administrator** | `admin@cholerapredict.test` | `CholeraPredict123!` | `/admin` |
-| **Doctor** | `doctor@cholerapredict.test` | `CholeraPredict123!` | `/doctor` |
-| **Community User** | `community@cholerapredict.test` | `CholeraPredict123!` | `/community` |
+| **Public Health Staff** | `staff@cholerapredict.test` | `CholeraPredict123!` | `/staff` |
+
+*(Legacy logins `doctor@cholerapredict.test` and `community@cholerapredict.test` are also preserved and mapped to the Staff workspace).*
+
+---
+
+## Environmental Bulk CSV Format
+
+When uploading batch environmental telemetry via `/staff/environmental`, use the following CSV headers:
+
+```csv
+district,location,waterSource,waterContaminationLevel,chlorineResidual,sanitationScore,rainfallMm,temperature,turbidityNtu,phLevel,floodRisk,notes
+Gasabo,Nyabugogo Basin,River,CRITICAL,0.05,35,48.5,27.2,18.4,6.8,true,High runoff contamination
+Kicukiro,Gahanga Community Well,Well,HIGH,0.12,48,32.0,26.5,9.8,7.1,false,Deficient chlorine residual
+Nyarugenge,Nyamirambo Central Point,Tap,SAFE,0.55,82,12.0,25.8,1.2,7.4,false,Adequate chlorination
+```
 
 ---
 

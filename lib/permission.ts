@@ -11,21 +11,17 @@ const statement = {
 
 export const ac = createAccessControl(statement);
 
-export const community = ac.newRole({
-  communityProfile: ["view", "update"],
-  patientProfile: ["view", "update"],
-  diseaseRecord: ["view", "create"],
-  environmentalData: ["view"],
-});
-
-export const patient = community;
-
-export const doctor = ac.newRole({
+export const staff = ac.newRole({
   communityProfile: ["view"],
   patientProfile: ["view"],
   diseaseRecord: ["view", "update", "create"],
   environmentalData: ["view", "create", "update"],
 });
+
+// Legacy aliases mapping to staff for backward-compatibility
+export const doctor = staff;
+export const community = staff;
+export const patient = staff;
 
 export const admin = ac.newRole({
   communityProfile: ["view", "update", "delete", "create"],
